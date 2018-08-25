@@ -18,19 +18,6 @@
 
 package com.mucommander.ui.main.menu;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.*;
-import java.util.List;
-import javax.swing.AbstractAction;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import com.mucommander.bonjour.BonjourMenu;
 import com.mucommander.bonjour.BonjourService;
 import com.mucommander.bookmark.Bookmark;
@@ -42,7 +29,6 @@ import com.mucommander.conf.MuConfigurations;
 import com.mucommander.conf.MuPreference;
 import com.mucommander.conf.MuPreferences;
 import com.mucommander.desktop.DesktopManager;
-import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.action.ActionManager;
 import com.mucommander.ui.action.ActionParameters;
 import com.mucommander.ui.action.MuAction;
@@ -58,8 +44,18 @@ import com.mucommander.ui.main.table.FileTable;
 import com.mucommander.ui.theme.Theme;
 import com.mucommander.ui.theme.ThemeManager;
 import com.mucommander.ui.viewer.FileFrame;
+import com.mucommander.utils.text.Translator;
 import ru.trolsoft.ui.TCheckBoxMenuItem;
 import ru.trolsoft.ui.TMenuSeparator;
+
+import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
+import java.util.List;
 
 
 /**
@@ -200,6 +196,7 @@ public class MainMenuBar extends JMenuBar implements ActionListener, MenuListene
         MenuToolkit.addMenuItem(markMenu, ActionManager.getActionInstance(MarkAllAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(markMenu, ActionManager.getActionInstance(UnmarkAllAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(markMenu, ActionManager.getActionInstance(MarkExtensionAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
+        MenuToolkit.addMenuItem(markMenu, ActionManager.getActionInstance(MarkEmptyFilesAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(markMenu, ActionManager.getActionInstance(InvertSelectionAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
 
         markMenu.add(new TMenuSeparator());
@@ -323,6 +320,7 @@ public class MainMenuBar extends JMenuBar implements ActionListener, MenuListene
         MenuToolkit.addMenuItem(quickListMenu, ActionManager.getActionInstance(ShowTabsQLAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper2);
         MenuToolkit.addMenuItem(quickListMenu, ActionManager.getActionInstance(ShowRecentViewedFilesQLAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper2);
         MenuToolkit.addMenuItem(quickListMenu, ActionManager.getActionInstance(ShowRecentEditedFilesQLAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper2);
+        MenuToolkit.addMenuItem(quickListMenu, ActionManager.getActionInstance(ShowEditorBookmarksQLAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper2);
         goMenu.add(quickListMenu);
 
         // Add Bonjour services menu
@@ -368,6 +366,8 @@ public class MainMenuBar extends JMenuBar implements ActionListener, MenuListene
         // Bookmark menu, menu items will be added when the menu gets selected
         menuItemMnemonicHelper.clear();
         bookmarksMenu = MenuToolkit.addMenu(Translator.get("bookmarks_menu"), menuMnemonicHelper, this);
+        //bookmarksMenu = MenuToolkit.addScrollableMenu(Translator.get("bookmarks_menu"), menuMnemonicHelper, this);
+
         MenuToolkit.addMenuItem(bookmarksMenu, ActionManager.getActionInstance(AddBookmarkAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(bookmarksMenu, ActionManager.getActionInstance(EditBookmarksAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(bookmarksMenu, ActionManager.getActionInstance(ExploreBookmarksAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
@@ -379,6 +379,7 @@ public class MainMenuBar extends JMenuBar implements ActionListener, MenuListene
         this.bookmarksOffset = bookmarksMenu.getItemCount();
 
         add(bookmarksMenu);
+
         
         // Window menu
         menuItemMnemonicHelper.clear();
