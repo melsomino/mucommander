@@ -25,6 +25,8 @@ import com.mucommander.ui.layout.XBoxPanel;
 import com.mucommander.ui.layout.YBoxPanel;
 import de.congrace.exp4j.CustomOperator;
 import de.congrace.exp4j.ExpressionBuilder;
+import org.jetbrains.annotations.NotNull;
+import ru.trolsoft.utils.StrUtils;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -113,7 +115,7 @@ public class CalculatorDialog extends FocusDialog implements ActionListener, Key
         // Text fields panel
         XAlignedComponentPanel compPanel = new XAlignedComponentPanel() {
             @Override
-            public void add(Component comp, Object constraints) {
+            public void add(@NotNull Component comp, Object constraints) {
                 ((GridBagConstraints)constraints).fill = GridBagConstraints.HORIZONTAL;
                 super.add(comp, constraints);
             }
@@ -196,46 +198,69 @@ public class CalculatorDialog extends FocusDialog implements ActionListener, Key
         fixHeight();
     }
 
-    private boolean calculate() {
-        String expression = cbExpression.getSelectedItem().toString().trim();
+    private boolean calculateAndShow() {
+        String expression = getExpression();
+        if (expression == null) {
+            return false;
+        }
         boolean success;
         try {
             double res = evaluate(expression);
             TextHistory.getInstance().add(TextHistory.Type.CALCULATOR, expression, false);
-
             cbExpression.addToHistory(expression);
-
-            long valLong = Math.round(res);
-            boolean isDecimal = valLong == res;
-            edtDec.setText(isDecimal ? Long.toString(valLong) : FORMAT_DEC.format(res).replace(',', '.'));
-            edtHex.setText(Long.toHexString(valLong));
-            edtOct.setText(Long.toOctalString(valLong));
-            edtBin.setText(Long.toBinaryString(valLong));
-            edtExp.setText(formatExp(res));
+            showResult(res);
             success = true;
         } catch (Exception e) {
             e.printStackTrace();
-            edtDec.setText("");
-            edtHex.setText("");
-            edtOct.setText("");
-            edtBin.setText("");
-            edtExp.setText("");
+            clearResultFields();
             success = false;
         }
-        edtDec.setEnabled(success);
-        edtHex.setEnabled(success);
-        edtOct.setEnabled(success);
-        edtBin.setEnabled(success);
-        edtOct.setEnabled(success);
-        edtExp.setEnabled(success);
-        btnDec.setEnabled(success);
-        btnHex.setEnabled(success);
-        btnOct.setEnabled(success);
-        btnBin.setEnabled(success);
-        btnOct.setEnabled(success);
-        btnExp.setEnabled(success);
+        enableControls(success);
         lblError.setText(success ? "" : i18n("calculator.error"));
         return success;
+    }
+
+    private void showResult(double res) {
+        long valLong = Math.round(res);
+        boolean isDecimal = valLong == res;
+        edtDec.setText(isDecimal ? Long.toString(valLong) : FORMAT_DEC.format(res).replace(',', '.'));
+        edtHex.setText(Long.toHexString(valLong));
+        edtOct.setText(Long.toOctalString(valLong));
+        edtBin.setText(Long.toBinaryString(valLong));
+        edtExp.setText(formatExp(res));
+    }
+
+    private String getExpression() {
+        Object selectedItem = cbExpression.getSelectedItem();
+        if (selectedItem == null) {
+            return null;
+        }
+        String result = selectedItem.toString().trim();
+        return StrUtils.removeUtfMarker(result).trim();
+    }
+
+
+    private void enableControls(boolean enable) {
+        edtDec.setEnabled(enable);
+        edtHex.setEnabled(enable);
+        edtOct.setEnabled(enable);
+        edtBin.setEnabled(enable);
+        edtOct.setEnabled(enable);
+        edtExp.setEnabled(enable);
+        btnDec.setEnabled(enable);
+        btnHex.setEnabled(enable);
+        btnOct.setEnabled(enable);
+        btnBin.setEnabled(enable);
+        btnOct.setEnabled(enable);
+        btnExp.setEnabled(enable);
+    }
+
+    private void clearResultFields() {
+        edtDec.setText("");
+        edtHex.setText("");
+        edtOct.setText("");
+        edtBin.setText("");
+        edtExp.setText("");
     }
 
     private double evaluate(String expression) throws Exception {
@@ -264,7 +289,7 @@ public class CalculatorDialog extends FocusDialog implements ActionListener, Key
     public void actionPerformed(ActionEvent e) {
         Object src = e.getSource();
         if (src == cbExpression) {
-            calculate();
+            calculateAndShow();
         } else if (src == btnClose) {
             cancel();
         } else if (src == btnDec) {
@@ -303,7 +328,7 @@ public class CalculatorDialog extends FocusDialog implements ActionListener, Key
     @Override
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER && (e.getModifiers() & (KeyEvent.CTRL_MASK | KeyEvent.META_MASK)) != 0) {
-            if (calculate()) {
+            if (calculateAndShow()) {
                 cbExpression.setSelectedItem(edtDec.getText());
             }
         }

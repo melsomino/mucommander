@@ -41,7 +41,7 @@ public class TerminalAction extends ParentFolderAction {
      * @param mainFrame  frame to which the action is attached.
      * @param properties action's properties.
      */
-    TerminalAction(MainFrame mainFrame, Map<String, Object> properties) {
+    private TerminalAction(MainFrame mainFrame, Map<String, Object> properties) {
         super(mainFrame, properties);
     }
 
@@ -50,7 +50,6 @@ public class TerminalAction extends ParentFolderAction {
         AbstractFile currentFolder = mainFrame.getActiveTable().getFileTableModel().getCurrentFolder();
         String cmd = getConsoleCommand(currentFolder);
         try {
-            //ProcessRunner.execute(cmd);
             ProcessRunner.execute(cmd, currentFolder);
         } catch(Exception e) {
             e.printStackTrace();
@@ -70,13 +69,20 @@ public class TerminalAction extends ParentFolderAction {
     }
 
     private static String getConsoleCommand(AbstractFile folder) {
-        String cmd;
-        if (MuConfigurations.getPreferences().getVariable(MuPreference.USE_CUSTOM_EXTERNAL_TERMINAL, MuPreferences.DEFAULT_USE_CUSTOM_EXTERNAL_TERMINAL)) {
-            cmd = MuConfigurations.getPreferences().getVariable(MuPreference.CUSTOM_EXTERNAL_TERMINAL);
-        } else {
-            cmd = getDefaultTerminalCommand();
-        }
+        String cmd = getTerminalCommand();
         return cmd.replace("$p", folder.getAbsolutePath());
+    }
+
+    private static String getTerminalCommand() {
+        return useCustomExternalTerminal() ? getCustomExternalTerminal() : getDefaultTerminalCommand();
+    }
+
+    private static String getCustomExternalTerminal() {
+        return MuConfigurations.getPreferences().getVariable(MuPreference.CUSTOM_EXTERNAL_TERMINAL);
+    }
+
+    private static boolean useCustomExternalTerminal() {
+        return MuConfigurations.getPreferences().getVariable(MuPreference.USE_CUSTOM_EXTERNAL_TERMINAL, MuPreferences.DEFAULT_USE_CUSTOM_EXTERNAL_TERMINAL);
     }
 
     @Override
@@ -93,13 +99,21 @@ public class TerminalAction extends ParentFolderAction {
     public static final class Descriptor extends AbstractActionDescriptor {
         public static final String ACTION_ID = "Terminal";
 
-        public String getId() { return ACTION_ID; }
+        public String getId() {
+            return ACTION_ID;
+        }
 
-        public ActionCategory getCategory() { return ActionCategory.MISC; }
+        public ActionCategory getCategory() {
+            return ActionCategory.MISC;
+        }
 
-        public KeyStroke getDefaultAltKeyStroke() { return null; }
+        public KeyStroke getDefaultAltKeyStroke() {
+            return null;
+        }
 
-        public KeyStroke getDefaultKeyStroke() { return KeyStroke.getKeyStroke(KeyEvent.VK_F2, KeyEvent.SHIFT_DOWN_MASK); }
+        public KeyStroke getDefaultKeyStroke() {
+            return KeyStroke.getKeyStroke(KeyEvent.VK_F2, KeyEvent.SHIFT_DOWN_MASK);
+        }
 
         public MuAction createAction(MainFrame mainFrame, Map<String,Object> properties) {
             return new TerminalAction(mainFrame, properties);

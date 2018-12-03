@@ -21,19 +21,23 @@ package com.mucommander.ui.viewer.text;
 import com.mucommander.cache.TextHistory;
 import com.mucommander.commons.file.AbstractFile;
 import com.mucommander.commons.runtime.OsFamily;
-import com.mucommander.ui.viewer.text.search.*;
-import com.mucommander.ui.viewer.text.tools.ExecPanel;
-import com.mucommander.ui.viewer.text.tools.ExecUtils;
-import com.mucommander.ui.viewer.text.tools.ProcessParams;
-import com.mucommander.utils.text.Translator;
-import com.mucommander.ui.action.MuAction;
+import com.mucommander.ui.action.ActionProperties;
 import com.mucommander.ui.action.impl.EditAction;
 import com.mucommander.ui.action.impl.ViewAction;
 import com.mucommander.ui.main.quicklist.ViewedAndEditedFilesQL;
 import com.mucommander.ui.theme.*;
 import com.mucommander.ui.viewer.EditorRegistrar;
 import com.mucommander.ui.viewer.FileFrame;
+import com.mucommander.ui.viewer.FileFrameCreateListener;
 import com.mucommander.ui.viewer.ViewerRegistrar;
+import com.mucommander.ui.viewer.text.search.FindDialog;
+import com.mucommander.ui.viewer.text.search.ReplaceDialog;
+import com.mucommander.ui.viewer.text.search.SearchEvent;
+import com.mucommander.ui.viewer.text.search.SearchListener;
+import com.mucommander.ui.viewer.text.tools.ExecPanel;
+import com.mucommander.ui.viewer.text.tools.ExecUtils;
+import com.mucommander.ui.viewer.text.tools.ProcessParams;
+import com.mucommander.utils.text.Translator;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
 import org.fife.ui.rtextarea.SearchResult;
@@ -47,7 +51,11 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.LinkedList;
 
 /**
  * Text editor implementation used by {@link TextViewer} and {@link TextEditor}.
@@ -92,17 +100,8 @@ class TextEditorImpl implements ThemeListener, ThemeId {
         @Override
         public void keyPressed(KeyEvent e) {
             if (e.getKeyCode() == KeyEvent.VK_ENTER && e.getModifiers() == KeyEvent.ALT_MASK) {
-                if (selectedIncludeFile == null) {
-                    return;
-                }
-                if (textArea.isEditable()) {
-                    ImageIcon icon = MuAction.getStandardIcon(EditAction.class);
-                    Image img = icon == null ? null : icon.getImage();
-                    EditorRegistrar.createEditorFrame(frame.getMainFrame(), selectedIncludeFile, img, (fileFrame -> fileFrame.returnFocusTo(frame)));
-                } else {
-                    ImageIcon icon = MuAction.getStandardIcon(ViewAction.class);
-                    Image img = icon == null ? null : icon.getImage();
-                    ViewerRegistrar.createViewerFrame(frame.getMainFrame(), selectedIncludeFile, img, (fileFrame -> fileFrame.returnFocusTo(frame)));
+                if (selectedIncludeFile != null) {
+                    openOtherFile(selectedIncludeFile);
                 }
                 return;
             }
@@ -171,7 +170,7 @@ class TextEditorImpl implements ThemeListener, ThemeId {
                 Font currentFont = textArea.getFont();
                 int currentFontSize = currentFont.getSize();
                 boolean rotationUp = e.getWheelRotation() < 0;
-                if ((!rotationUp && currentFontSize > 1) || rotationUp) {
+                if (rotationUp || currentFontSize > 1) {
                     Font newFont = new Font(currentFont.getName(), currentFont.getStyle(), currentFontSize + (rotationUp ? 1 : -1));
                     textArea.setFont(newFont);
                 }
@@ -477,7 +476,7 @@ class TextEditorImpl implements ThemeListener, ThemeId {
             splitPane.add(frame.getFilePresenter());
             splitPane.setDividerLocation(frame.getHeight()*2/3);
             splitPane.setOneTouchExpandable(true);
-            pnlBuild = new ExecPanel(this::closeBuildPanel);
+            pnlBuild = new ExecPanel(this::closeBuildPanel, this::gotoBuildError);
 
             splitPane.add(pnlBuild);
             frame.getContentPane().remove(frame.getFilePresenter());
@@ -496,6 +495,7 @@ class TextEditorImpl implements ThemeListener, ThemeId {
         pnlBuild.doLayout();
     }
 
+
     private void closeBuildPanel() {
 	    if (splitPane == null || pnlBuild == null) {
 	        return;
@@ -509,6 +509,21 @@ class TextEditorImpl implements ThemeListener, ThemeId {
         }
         splitPane.setDividerSize(0);
     }
+
+    private void gotoBuildError(AbstractFile file, int line, int column) {
+	    if (this.file.getAbsolutePath().equals(file.getAbsolutePath())) {
+	        textArea.gotoLine(line, column);
+        } else {
+            TextFilesHistory.FileRecord historyRecord = TextFilesHistory.getInstance().get(file);
+            historyRecord.update(line, line, column >= 0 ? column : 0, historyRecord.getFileType(), historyRecord.getEncoding());
+            openOtherFile(file, fileFrame -> {
+                fileFrame.returnFocusTo(fileFrame);
+                TextArea newTextArea = ((TextEditor)fileFrame.getFilePresenter()).getTextArea();
+                SwingUtilities.invokeLater(() -> newTextArea.gotoLine(line, column));
+            });
+        }
+    }
+
 
     public StatusBar getStatusBar() {
         return statusBar;
@@ -531,7 +546,7 @@ class TextEditorImpl implements ThemeListener, ThemeId {
         }
     }
 
-    static void beep() {
+    private static void beep() {
         // The beep method is called from a separate thread because this method seems to lock until the beep has
         // been played entirely. If the 'Find next' shortcut is left pressed, a series of beeps will be played when
         // the end of the file is reached, and we don't want those beeps to played one after the other as to:
@@ -553,6 +568,10 @@ class TextEditorImpl implements ThemeListener, ThemeId {
         }
     }
 
+    void prepareForView(AbstractFile file) {
+        this.file = file;
+    }
+
     public void setFrame(FileFrame frame) {
         this.frame = frame;
     }
@@ -569,5 +588,75 @@ class TextEditorImpl implements ThemeListener, ThemeId {
     void setMenuHelper(TextMenuHelper menuHelper) {
         this.menuHelper = menuHelper;
     }
+
+    void addCurrentFileToBookmarks() {
+	    AbstractFile currentFile = getFile();
+        getBookmarkFilesList().addLast(currentFile.getURL().toString());
+        TextHistory.getInstance().save(TextHistory.Type.EDITOR_BOOKMARKS);
+    }
+
+    void removeCurrentFileFromBookmarks() {
+        AbstractFile currentFile = getFile();
+        getBookmarkFilesList().remove(currentFile.getURL().toString());
+        TextHistory.getInstance().save(TextHistory.Type.EDITOR_BOOKMARKS);
+    }
+
+    void showFilesQuickList() {
+        AbstractFile currentFile = getFile();
+        ViewedAndEditedFilesQL viewedAndEditedFilesQL = new ViewedAndEditedFilesQL(frame, currentFile);
+        viewedAndEditedFilesQL.show();
+    }
+
+    private static LinkedList<String> getBookmarkFilesList() {
+        return TextHistory.getInstance().getList(TextHistory.Type.EDITOR_BOOKMARKS);
+    }
+
+
+    private static AbstractFile getFileWithSameNameAndExt(AbstractFile file, String ...extensions) {
+        String fileName = file.getNameWithoutExtension();
+	    for (String ext : extensions) {
+            try {
+                AbstractFile selectedFile = file.getParent().getChild(fileName + ext);
+                if (selectedFile != null && selectedFile.exists()) {
+                    return selectedFile;
+                }
+            } catch (IOException ignore) {}
+        }
+        return null;
+    }
+
+
+    void switchBetweenHeaderAndSource() {
+	    AbstractFile currentFile = getFile();
+        String ext = file.getExtension().toLowerCase();
+	    boolean isSource = "c".equals(ext) || "cpp".equals(ext) || "cc".equals(ext);
+        boolean isHeader = "h".equals(ext) || "hpp".equals(ext);
+        AbstractFile fileToOpen;
+        if (isSource) {
+            fileToOpen = getFileWithSameNameAndExt(currentFile, ".h", ".hpp");
+        } else if (isHeader) {
+            fileToOpen = getFileWithSameNameAndExt(currentFile, ".c", ".cpp", ".cc");
+        } else {
+            return;
+        }
+        if (fileToOpen != null) {
+            openOtherFile(fileToOpen);
+        }
+    }
+
+    private void openOtherFile(AbstractFile path, FileFrameCreateListener createListener) {
+        if (textArea.isEditable()) {
+            EditorRegistrar.createEditorFrame(frame.getMainFrame(), path,
+                    ActionProperties.getActionIcon(EditAction.Descriptor.ACTION_ID).getImage(), createListener);
+        } else {
+            ViewerRegistrar.createViewerFrame(frame.getMainFrame(), path,
+                    ActionProperties.getActionIcon(ViewAction.Descriptor.ACTION_ID).getImage(), createListener);
+        }
+    }
+
+    private void openOtherFile(AbstractFile path) {
+	    openOtherFile(path, null);
+    }
+
 
 }

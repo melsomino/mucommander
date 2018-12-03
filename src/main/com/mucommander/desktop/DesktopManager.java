@@ -67,7 +67,7 @@ public class DesktopManager {
      * @see #canOpenInFileManager()
      * @see #openInFileManager(File)
      */
-    public static final String OPEN_IN_FILE_MANAGER = "openFM";
+    private static final String OPEN_IN_FILE_MANAGER = "openFM";
 
     /**
      * Represents "open" operations.
@@ -77,7 +77,7 @@ public class DesktopManager {
      * @see #canOpen()
      * @see #open(File)
      */
-    public static final String OPEN = "open";
+    static final String OPEN = "open";
 
 
 
@@ -90,7 +90,7 @@ public class DesktopManager {
      * {@link #registerOperation(String,int,DesktopOperation)} method.
      *
      */
-    public static final int SYSTEM_OPERATION = 0;
+    private static final int SYSTEM_OPERATION = 0;
 
     /**
      * Non-system operations.
@@ -100,7 +100,7 @@ public class DesktopManager {
      * to be fairly reliable.
      *
      */
-    public static final int CUSTOM_OPERATION = 1;
+    private static final int CUSTOM_OPERATION = 1;
 
     /**
      * Last resort operations.
@@ -108,7 +108,7 @@ public class DesktopManager {
      * These operations will only ever be used if nothing else is available. They need only be a best-effort solution.
      *
      */
-    public static final int FALLBACK_OPERATION = 2;
+    private static final int FALLBACK_OPERATION = 2;
 
 
 
@@ -251,17 +251,13 @@ public class DesktopManager {
      * Registers the specified operation for the specified type and priority.
      */
     private static void innerRegisterOperation(String type, int priority, DesktopOperation operation) {
-        List<DesktopOperation> container;
-
         // Makes sure we have a container for operations of the specified priority.
         if (operations[priority] == null) {
             operations[priority] = new Hashtable<>();
         }
 
         // Makes sure we have a container for operations of the specified type.
-        if ((container = operations[priority].get(type)) == null) {
-            operations[priority].put(type, container = new Vector<>());
-        }
+        List<DesktopOperation> container = operations[priority].computeIfAbsent(type, k -> new Vector<>());
 
         // Creates the requested entry.
         container.add(operation);
@@ -316,32 +312,31 @@ public class DesktopManager {
     }
 
     private static DesktopOperation getSupportedOperation(String type, Object[] target) {
-        DesktopOperation operation;
-        if ((operation = getSupportedOperation(type, SYSTEM_OPERATION, target)) != null) {
+        DesktopOperation operation = getSupportedOperation(type, SYSTEM_OPERATION, target);
+        if (operation != null) {
             return operation;
         }
-        if ((operation = getSupportedOperation(type, CUSTOM_OPERATION, target)) != null) {
+        operation = getSupportedOperation(type, CUSTOM_OPERATION, target);
+        if (operation != null) {
             return operation;
         }
-        if ((operation = getSupportedOperation(type, FALLBACK_OPERATION, target)) != null) {
+        operation = getSupportedOperation(type, FALLBACK_OPERATION, target);
+        if (operation != null) {
             return operation;
         }
         return null;
     }
 
     private static DesktopOperation getAvailableOperation(String type) {
-        DesktopOperation operation;
-
-        if ((operation = getAvailableOperation(type, SYSTEM_OPERATION)) != null) {
-            return operation;
+        DesktopOperation systemOperation = getAvailableOperation(type, SYSTEM_OPERATION);
+        if (systemOperation != null) {
+            return systemOperation;
         }
-        if ((operation = getAvailableOperation(type, CUSTOM_OPERATION)) != null) {
-            return operation;
+        DesktopOperation customOperation = getAvailableOperation(type, CUSTOM_OPERATION);
+        if (customOperation != null) {
+            return customOperation;
         }
-        if ((operation = getAvailableOperation(type, FALLBACK_OPERATION)) != null) {
-            return operation;
-        }
-        return null;
+        return getAvailableOperation(type, FALLBACK_OPERATION);
     }
 
     public static boolean isOperationAvailable(String type) {
@@ -355,29 +350,26 @@ public class DesktopManager {
     public static void executeOperation(String type, Object[] target) throws IOException, UnsupportedOperationException {
         DesktopOperation operation = getSupportedOperation(type, target);
 
-        if (operation != null) {
-            operation.execute(target);
-        } else {
+        if (operation == null) {
             throw new UnsupportedOperationException();
         }
+        operation.execute(target);
     }
 
     public static String getOperationName(String type) throws UnsupportedOperationException {
         DesktopOperation operation = getAvailableOperation(type);
-        if (operation != null) {
-            return operation.getName();
+        if (operation == null) {
+            throw new UnsupportedOperationException();
         }
-        throw new UnsupportedOperationException();
-
-   }
+        return operation.getName();
+    }
 
     public static String getOperationName(String type, Object[] target) throws UnsupportedOperationException {
         DesktopOperation operation = getSupportedOperation(type, target);
-
-        if (operation != null) {
-            return operation.getName();
+        if (operation == null) {
+            throw new UnsupportedOperationException();
         }
-        throw new UnsupportedOperationException();
+        return operation.getName();
     }
 
 
@@ -416,19 +408,33 @@ public class DesktopManager {
 
     // - File opening helpers --------------------------------------------
     // -------------------------------------------------------------------
-    public static boolean canOpen() {return isOperationAvailable(OPEN);}
+    public static boolean canOpen() {
+        return isOperationAvailable(OPEN);
+    }
 
-    public static boolean canOpen(File file) {return isOperationSupported(OPEN, new Object[] {file});}
+    public static boolean canOpen(File file) {
+        return isOperationSupported(OPEN, new Object[] {file});
+    }
 
-    public static boolean canOpen(String file) {return isOperationSupported(OPEN, new Object[] {file});}
+    public static boolean canOpen(String file) {
+        return isOperationSupported(OPEN, new Object[] {file});
+    }
 
-    public static boolean canOpen(AbstractFile file) {return isOperationSupported(OPEN, new Object[] {file});}
+    public static boolean canOpen(AbstractFile file) {
+        return isOperationSupported(OPEN, new Object[] {file});
+    }
 
-    public static void open(File file) throws IOException, UnsupportedOperationException {executeOperation(OPEN, new Object[] {file});}
+    public static void open(File file) throws IOException, UnsupportedOperationException {
+        executeOperation(OPEN, new Object[] {file});
+    }
 
-    public static void open(String file) throws IOException, UnsupportedOperationException {executeOperation(OPEN, new Object[] {file});}
+    public static void open(String file) throws IOException, UnsupportedOperationException {
+        executeOperation(OPEN, new Object[] {file});
+    }
 
-    public static void open(AbstractFile file) throws IOException, UnsupportedOperationException {executeOperation(OPEN, new Object[] {file});}
+    public static void open(AbstractFile file) throws IOException, UnsupportedOperationException {
+        executeOperation(OPEN, new Object[] {file});
+    }
 
 
 
@@ -510,7 +516,9 @@ public class DesktopManager {
      * Sets the object that is used to create instances of {@link com.mucommander.desktop.AbstractTrash}.
      * @param provider object that will be used to create instances of {@link com.mucommander.desktop.AbstractTrash}.
      */
-    public static void setTrashProvider(TrashProvider provider) {trashProvider = provider;}
+    public static void setTrashProvider(TrashProvider provider) {
+        trashProvider = provider;
+    }
 
 
     // - Mouse management ------------------------------------------------

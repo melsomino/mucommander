@@ -45,7 +45,7 @@ public class GoToParentInOtherPanelAction extends ParentFolderAction {
      * @param mainFrame  frame to which the action is attached.
      * @param properties action's properties.
      */
-    GoToParentInOtherPanelAction(MainFrame mainFrame, Map<String, Object> properties) {
+    private GoToParentInOtherPanelAction(MainFrame mainFrame, Map<String, Object> properties) {
         super(mainFrame, properties);
     }
 
@@ -75,8 +75,9 @@ public class GoToParentInOtherPanelAction extends ParentFolderAction {
      */
     @Override
     protected void toggleEnabledState() {
+        AbstractFile currentFolder = mainFrame.getActivePanel().getCurrentFolder();
         setEnabled(!mainFrame.getInactivePanel().getTabs().getCurrentTab().isLocked() &&
-        		    mainFrame.getActivePanel().getCurrentFolder().getParent()!=null);
+        		    currentFolder != null && currentFolder.getParent() != null);
     }
     
     /**
@@ -96,11 +97,17 @@ public class GoToParentInOtherPanelAction extends ParentFolderAction {
     public static final class Descriptor extends AbstractActionDescriptor {
     	public static final String ACTION_ID = "GoToParentInOtherPanel";
     	
-		public String getId() { return ACTION_ID; }
+		public String getId() {
+		    return ACTION_ID;
+		}
 
-		public ActionCategory getCategory() { return ActionCategory.NAVIGATION; }
+		public ActionCategory getCategory() {
+		    return ActionCategory.NAVIGATION;
+		}
 
-		public KeyStroke getDefaultAltKeyStroke() { return null; }
+		public KeyStroke getDefaultAltKeyStroke() {
+		    return null;
+		}
 
 		public KeyStroke getDefaultKeyStroke() {
             return KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, CTRL_OR_META_DOWN_MASK);

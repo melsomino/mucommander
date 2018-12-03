@@ -348,6 +348,7 @@ public class MainMenuBar extends JMenuBar implements ActionListener, MenuListene
         menuItemMnemonicHelper.clear();
         JMenu toolsMenu = MenuToolkit.addMenu(Translator.get("tools_menu"), menuMnemonicHelper, this);
 
+        MenuToolkit.addMenuItem(toolsMenu, ActionManager.getActionInstance(UserMenuAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(toolsMenu, ActionManager.getActionInstance(FindFileAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(toolsMenu, ActionManager.getActionInstance(CalculatorAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
         MenuToolkit.addMenuItem(toolsMenu, ActionManager.getActionInstance(RunCommandAction.Descriptor.ACTION_ID, mainFrame), menuItemMnemonicHelper);
@@ -572,13 +573,25 @@ public class MainMenuBar extends JMenuBar implements ActionListener, MenuListene
         // Add bookmarks menu items
         List<Bookmark> bookmarks = BookmarkManager.getBookmarks();
         if (!bookmarks.isEmpty()) {
-            for (Bookmark bookmark : bookmarks) {
-                MenuToolkit.addMenuItem(bookmarksMenu, new OpenLocationAction(mainFrame, new HashMap<>(), bookmark), null);
-            }
+            addBookmarksForGroup(bookmarksMenu, bookmarks, null);
         } else {
             // Show 'No bookmark' as a disabled menu item instead showing nothing
             JMenuItem noBookmarkItem = MenuToolkit.addMenuItem(bookmarksMenu, Translator.get("bookmarks_menu.no_bookmark"), null, null, null);
             noBookmarkItem.setEnabled(false);
+        }
+    }
+
+    private void addBookmarksForGroup(JMenu menu, List<Bookmark> bookmarks, String parent) {
+        for (Bookmark bookmark : bookmarks) {
+            if ((bookmark.getParent() == null && parent == null) || (parent != null && parent.equals(bookmark.getParent()))) {
+                if (bookmark.getLocation().isEmpty() && !bookmark.getName().equals(BookmarkManager.BOOKMARKS_SEPARATOR)) {
+                    JMenu groupMenu = MenuToolkit.addMenu(bookmark.getName(), null, null);
+                    menu.add(groupMenu);
+                    addBookmarksForGroup(groupMenu, bookmarks, bookmark.getName());
+                } else {
+                    MenuToolkit.addMenuItem(menu, new OpenLocationAction(mainFrame, new HashMap<>(), bookmark), null);
+                }
+            }
         }
     }
 

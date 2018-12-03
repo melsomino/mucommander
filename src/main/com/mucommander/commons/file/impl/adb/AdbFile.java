@@ -63,12 +63,17 @@ public class AdbFile extends ProtocolFile {
 			if (path.isEmpty() || "\\".equals(path)) {
 				path = "/";
 			}
-
 			remoteFile = tryLs(device, path);
 			if (remoteFile == null && "/".equals(path)) {
 				remoteFile = tryLs(device, "/sdcard/");
 				if (remoteFile != null) {
 					rootFolder = "/sdcard/";
+				}
+			}
+			if (remoteFile == null && "/".equals(path)) {
+				remoteFile = tryLs(device, "/mnt/sdcard/");
+				if (remoteFile != null) {
+					rootFolder = "/mnt/sdcard/";
 				}
 			}
 			closeConnection();
@@ -136,9 +141,8 @@ public class AdbFile extends ProtocolFile {
 		return device;
 	}
 
-	private void closeConnection() throws IOException {
+	private void closeConnection() {
 		if (jadbConnection != null) {
-			//jadbConnection.close();
 			jadbConnection = null;
 		}
 	}
@@ -158,7 +162,7 @@ public class AdbFile extends ProtocolFile {
 	}
 
 	@Override
-	public void setLastModifiedDate(long lastModified) throws IOException {
+	public void setLastModifiedDate(long lastModified) {
 	}
 
 	@Override
@@ -218,7 +222,7 @@ public class AdbFile extends ProtocolFile {
 	}
 
 	@Override
-	public void changePermission(int access, int permission, boolean enabled) throws IOException {
+	public void changePermission(int access, int permission, boolean enabled) {
 
 	}
 
@@ -228,12 +232,12 @@ public class AdbFile extends ProtocolFile {
 	}
 
 	@Override
-	public short getReplication() throws UnsupportedFileOperationException {
+	public short getReplication() {
 		return 0;
 	}
 
 	@Override
-	public long getBlocksize() throws UnsupportedFileOperationException {
+	public long getBlocksize() {
 		return 0;
 	}
 
@@ -254,7 +258,7 @@ public class AdbFile extends ProtocolFile {
 
 	@Override
 	public boolean isDirectory() {
-		return remoteFile != null && remoteFile.isDirectory();
+		return remoteFile == null || remoteFile.isDirectory();
 	}
 
 	@Override
@@ -328,17 +332,17 @@ public class AdbFile extends ProtocolFile {
 	}
 
 	@Override
-	public OutputStream getAppendOutputStream() throws IOException {
+	public OutputStream getAppendOutputStream() {
 		return null;
 	}
 
 	@Override
-	public RandomAccessInputStream getRandomAccessInputStream() throws IOException {
+	public RandomAccessInputStream getRandomAccessInputStream() {
 		return null;
 	}
 
 	@Override
-	public RandomAccessOutputStream getRandomAccessOutputStream() throws IOException {
+	public RandomAccessOutputStream getRandomAccessOutputStream() {
 		return null;
 	}
 
@@ -395,17 +399,17 @@ public class AdbFile extends ProtocolFile {
 	}
 
 	@Override
-	public void copyRemotelyTo(AbstractFile destFile) throws IOException {
+	public void copyRemotelyTo(AbstractFile destFile) {
 
 	}
 
 	@Override
-	public long getFreeSpace() throws IOException {
+	public long getFreeSpace() {
 		return 0;
 	}
 
 	@Override
-	public long getTotalSpace() throws IOException {
+	public long getTotalSpace() {
 		return 0;
 	}
 

@@ -148,8 +148,8 @@ public class VersionChecker extends DefaultHandler {
         // Makes sure we retrieved the information we were looking for.
         // We're not checking the release date as older version of muCommander
         // didn't use it.
-        if(instance.latestVersion == null || instance.latestVersion.equals("") ||
-           instance.downloadURL == null   || instance.downloadURL.equals(""))
+        if(instance.latestVersion == null || instance.latestVersion.isEmpty() ||
+           instance.downloadURL == null   || instance.downloadURL.isEmpty())
             throw new Exception();
 
         return instance;
@@ -238,7 +238,7 @@ public class VersionChecker extends DefaultHandler {
      * Notifies the parser that a new tag is starting.
      */
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
         // Checks whether we know the tag and updates the current state.
         switch (qName) {
             case VERSION_ELEMENT:
@@ -263,7 +263,7 @@ public class VersionChecker extends DefaultHandler {
      * Notifies the parser that the current element is finished.
      */
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {state = STATE_UNKNOWN;}
+    public void endElement(String uri, String localName, String qName) {state = STATE_UNKNOWN;}
 
     /**
      * Notifies the parser that XML parsing is finished.

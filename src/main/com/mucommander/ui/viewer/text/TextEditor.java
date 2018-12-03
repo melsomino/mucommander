@@ -58,7 +58,7 @@ public class TextEditor extends FileEditor implements DocumentListener, Encoding
 
     //private TextMenuHelper menuHelper;
     private TextEditorImpl textEditorImpl;
-    private TextViewer textViewerDelegate;
+    private final TextViewer textViewerDelegate;
     private StatusBar statusBar;
 
     private GutterEx gutter;
@@ -67,11 +67,7 @@ public class TextEditor extends FileEditor implements DocumentListener, Encoding
     TextEditor() {
         textEditorImpl = new TextEditorImpl(true, getStatusBar());
 //        Font defaultFont = new Font("Monospaced", Font.PLAIN, 12);
-        gutter = new GutterEx(textEditorImpl.getTextArea());
-        gutter.setLineNumberFont(textEditorImpl.getTextArea().getFont());
-        // TODO
-        gutter.setBackground(Color.LIGHT_GRAY);
-        gutter.setForeground(Color.black);
+        initGutter();
         //gutter.setActiveLineRangeColor(new Color(0,0,255));
         setLineNumbersEnabled(TextViewer.isLineNumbers());
 
@@ -98,12 +94,21 @@ public class TextEditor extends FileEditor implements DocumentListener, Encoding
                 menuHelper = new TextMenuHelper(textEditorImpl, true);
                 //menuHelper.initMenu(TextEditor.this, TextEditor.this.getRowHeader().getView() != null);
                 menuHelper.initMenu(TextEditor.this, TextViewer.isLineNumbers());
+                //menuHelper.setupFileMenu(menuFile, TextEditor.this, getCurrentFile());
                 textEditorImpl.setMenuHelper(menuHelper);
     		}
     	};
 
         //setComponentToPresent(textEditorImpl.getTextArea());
         setComponentToPresent(textEditorImpl.getEditorComponent());
+    }
+
+    private void initGutter() {
+        gutter = new GutterEx(textEditorImpl.getTextArea());
+        gutter.setLineNumberFont(textEditorImpl.getTextArea().getFont());
+        // TODO
+        gutter.setBackground(Color.LIGHT_GRAY);
+        gutter.setForeground(Color.black);
     }
 
     @Override
@@ -139,11 +144,12 @@ public class TextEditor extends FileEditor implements DocumentListener, Encoding
 
         textEditorImpl.getTextArea().setFocusTraversalKeysEnabled(false);
         textViewerDelegate.setMainKeyListener(textEditorImpl.getTextArea(), menuBar);
+        textViewerDelegate.menuHelper.setupFileMenu(menuFile, TextEditor.this, getCurrentFile());
     	return menuBar;
     }
 
     @Override
-    protected StatusBar getStatusBar() {
+    public StatusBar getStatusBar() {
         if (statusBar == null) {
             statusBar = new StatusBar();
         }
@@ -176,7 +182,7 @@ public class TextEditor extends FileEditor implements DocumentListener, Encoding
     ///////////////////////////////
 
     @Override
-    protected void saveAs(AbstractFile destFile) throws IOException {
+    protected void saveAs(AbstractFile destFile) {
 //        OutputStream out = null;
         getStatusBar().setStatusMessage(Translator.get("text_editor.writing"));
 
@@ -464,5 +470,9 @@ public class TextEditor extends FileEditor implements DocumentListener, Encoding
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public TextArea getTextArea() {
+        return textEditorImpl.getTextArea();
     }
 }
