@@ -39,7 +39,7 @@ import java.util.zip.GZIPInputStream;
  * TarArchiveFile provides read-only access to archives in the Tar/Tgz format.
  *
  * <p>The actual decompression work is performed by the <code>Apache Ant</code> library under the terms of the
- * Apache Software License.</p>
+ * Apache Software License.
  *
  * @see com.mucommander.commons.file.impl.tar.TarFormatProvider
  * @author Maxence Bernard
@@ -108,13 +108,13 @@ public class TarArchiveFile extends AbstractROArchiveFile {
     ////////////////////////////////////////
 
     @Override
-    public ArchiveEntryIterator getEntryIterator() throws IOException, UnsupportedFileOperationException {
+    public ArchiveEntryIterator getEntryIterator() throws IOException {
         return new TarEntryIterator(createTarStream(0));
     }
 
 
     @Override
-    public InputStream getEntryInputStream(ArchiveEntry entry, ArchiveEntryIterator entryIterator) throws IOException, UnsupportedFileOperationException {
+    public InputStream getEntryInputStream(ArchiveEntry entry, ArchiveEntryIterator entryIterator) throws IOException {
         if (entry.isDirectory())
             throw new IOException();
 
@@ -129,7 +129,7 @@ public class TarArchiveFile extends AbstractROArchiveFile {
                 // we don't want the TarInputStream to be closed when the caller closes the entry's stream.
                 return new FilterInputStream(((TarEntryIterator)entryIterator).getTarInputStream()) {
                     @Override
-                    public void close() throws IOException {
+                    public void close() {
                         // No-op
                     }
                 };

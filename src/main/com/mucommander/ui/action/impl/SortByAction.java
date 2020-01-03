@@ -40,7 +40,7 @@ import java.util.Map;
  * reversed.
  *
  * <p>This action is enabled only if the corresponding column is currently visible. This prevents this action from being
- * performed when the column is not visible, which is an unsupported operation</p>.
+ * performed when the column is not visible, which is an unsupported operation.
  *
  * @author Maxence Bernard
  */
@@ -131,12 +131,20 @@ public abstract class SortByAction extends MuAction implements ActivePanelListen
             this.defaultKeyStroke = defaultKeyStroke;
         }
 
-        public String getId() { return column.getSortByColumnActionId(); }
+        public String getId() {
+            return column.getSortByColumnActionId();
+        }
 
-		public ActionCategory getCategory() { return ActionCategory.VIEW; }
+		public ActionCategory getCategory() {
+            return ActionCategory.VIEW;
+        }
 
-		public KeyStroke getDefaultAltKeyStroke() { return null; }
+		public KeyStroke getDefaultAltKeyStroke() {
+            return null;
+        }
 
-		public KeyStroke getDefaultKeyStroke() { return defaultKeyStroke; }
+		public KeyStroke getDefaultKeyStroke() {
+            return defaultKeyStroke;
+        }
     }
 }

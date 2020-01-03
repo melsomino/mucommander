@@ -26,12 +26,13 @@ import com.mucommander.commons.io.base64.Base64OutputStream;
 import com.mucommander.conf.MuConfigurations;
 import com.mucommander.conf.MuPreference;
 import com.mucommander.conf.MuPreferences;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.dialog.file.ProgressDialog;
 import com.mucommander.ui.main.MainFrame;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -74,9 +75,9 @@ public class SendMailJob extends TransferFileJob {
 
     /** Connection variable */
     private BufferedReader in;
-    /** OuputStream to the SMTP server */
+    /** OutputStream to the SMTP server */
     private OutputStream out;
-    /** Base64OuputStream to the SMTP server */
+    /** Base64OutputStream to the SMTP server */
     private Base64OutputStream out64;
     /** Socket connection to the SMTP server */
     private Socket socket;
@@ -126,7 +127,7 @@ public class SendMailJob extends TransferFileJob {
 
     private void openConnection() throws IOException {
         this.socket = new Socket(mailServer, MuConfigurations.getPreferences().getVariable(MuPreference.SMTP_PORT, MuPreferences.DEFAULT_SMTP_PORT));
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         this.out = socket.getOutputStream();
         this.out64 = new Base64OutputStream(out, true);
 		
@@ -230,12 +231,12 @@ public class SendMailJob extends TransferFileJob {
     }
     
     private void readWriteLine(String s) throws IOException {
-        out.write((s + "\r\n").getBytes("UTF-8"));
+        out.write((s + "\r\n").getBytes(StandardCharsets.UTF_8));
         in.readLine();
     }
 
     private void writeLine(String s) throws IOException {
-        out.write((s + "\r\n").getBytes("UTF-8"));
+        out.write((s + "\r\n").getBytes(StandardCharsets.UTF_8));
     }
 
 

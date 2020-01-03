@@ -36,19 +36,19 @@ import com.mucommander.ui.popup.MuActionsPopupMenu;
 */
 class FileTableTabPopupMenu extends MuActionsPopupMenu {
 
-	public FileTableTabPopupMenu(MainFrame mainFrame) {
+	FileTableTabPopupMenu(MainFrame mainFrame) {
 		super(mainFrame);
 
-		FileTableTab tab = mainFrame.getActivePanel().getTabs().getCurrentTab();
+		//FileTableTab tab = mainFrame.getActivePanel().getTabs().getCurrentTab();
 		
 		addAction(DuplicateTabAction.Descriptor.ACTION_ID);
 		addAction(CloseTabAction.Descriptor.ACTION_ID);
 		addAction(CloseOtherTabsAction.Descriptor.ACTION_ID);
 		addAction(CloseDuplicateTabsAction.Descriptor.ACTION_ID);
-		add(new Separator());
+		addSeparator();
 		addAction(ToggleLockTabAction.Descriptor.ACTION_ID);
 		addAction(SetTabTitleAction.Descriptor.ACTION_ID);
-		add(new Separator());
+		addSeparator();
 		addAction(MoveTabToOtherPanelAction.Descriptor.ACTION_ID);
 		addAction(CloneTabToOtherPanelAction.Descriptor.ACTION_ID);
 	}

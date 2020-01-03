@@ -55,9 +55,9 @@ public abstract class MainFrameBuilder {
      * If the path found in preferences is either illegal or does not exist, this method will
      * return the user's home directory - we assume this will always exist, which might be a bit
      * of a leap of faith.
-     * </p>
+     *
      * @param  folderPanelType panel for which the initial path should be returned (either {@link com.mucommander.ui.main.FolderPanel.FolderPanelType#LEFT} or
-     *               {@link #@link com.mucommander.ui.main.FolderPanel.FolderPanelType.RIGHT}).
+     *               {@link com.mucommander.ui.main.FolderPanel.FolderPanelType#RIGHT}).
      * @return       the user's initial path for the specified frame.
      */ 
     protected AbstractFile[] getInitialPaths(FolderPanelType folderPanelType, int window) {
@@ -99,11 +99,12 @@ public abstract class MainFrameBuilder {
         // If the initial path is not legal or does not exist, defaults to the user's home.
         AbstractFile[] results = initialFolders.size() == 0 ?
         		new AbstractFile[] {FileFactory.getFile(System.getProperty("user.home"))} :
-                initialFolders.toArray(new AbstractFile[initialFolders.size()]);
+                initialFolders.toArray(new AbstractFile[0]);
 
         getLogger().debug("initial folders:");
-         for (AbstractFile result:results)
-             getLogger().debug("\t"+result);
+        for (AbstractFile result:results) {
+            getLogger().debug("\t"+result);
+        }
         
         return results;
     }
@@ -114,7 +115,7 @@ public abstract class MainFrameBuilder {
      * If the path found in preferences is either illegal or does not exist, this method will
      * return the user's home directory - we assume this will always exist, which might be a bit
      * of a leap of faith.
-     * </p>
+     *
      * @param  folderPanelType panel for which the initial path should be returned (either {@link com.mucommander.ui.main.FolderPanel.FolderPanelType#LEFT} or
      *               {@link #@link com.mucommander.ui.main.FolderPanel.FolderPanelType.RIGHT}).
      * @return       the user's initial path for the specified frame.

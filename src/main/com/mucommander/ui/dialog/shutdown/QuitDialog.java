@@ -23,7 +23,7 @@ import javax.swing.JCheckBox;
 import com.mucommander.conf.MuConfigurations;
 import com.mucommander.conf.MuPreference;
 import com.mucommander.conf.MuPreferences;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.action.ActionProperties;
 import com.mucommander.ui.action.impl.QuitAction;
 import com.mucommander.ui.dialog.QuestionDialog;
@@ -35,7 +35,7 @@ import com.mucommander.ui.main.WindowManager;
  * to cancel the operatoin in case the quit shortcut was hit by mistake. 
  * 
  * <p>A checkbox allows the user to disable this confirmation dialog for the next the application is quit. It can
- * later be re-enabled in the application preferences.</p>
+ * later be re-enabled in the application preferences.
  *
  * @author Maxence Bernard
  */

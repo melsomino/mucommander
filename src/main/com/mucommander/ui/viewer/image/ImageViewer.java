@@ -38,7 +38,7 @@ import javax.swing.*;
 import com.mucommander.commons.file.AbstractFile;
 import com.mucommander.commons.runtime.OsFamily;
 import com.mucommander.conf.MuSnapshot;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.dialog.InformationDialog;
 import com.mucommander.ui.helper.MenuToolkit;
 import com.mucommander.ui.helper.MnemonicHelper;
@@ -111,24 +111,24 @@ class ImageViewer extends FileViewer implements ActionListener {
     }
 
 
-    public ImageViewer() {
+    ImageViewer() {
     	imageViewerImpl = new ImageViewerImpl();
     	
     	setComponentToPresent(imageViewerImpl);
     	
     	// create Go menu
     	MnemonicHelper menuMnemonicHelper = new MnemonicHelper();
-    	controlsMenu = MenuToolkit.addMenu(Translator.get("image_viewer.controls_menu"), menuMnemonicHelper, null);
+    	controlsMenu = MenuToolkit.addMenu(i18n("image_viewer.controls_menu"), menuMnemonicHelper, null);
     	
-        nextImageItem = MenuToolkit.addMenuItem(controlsMenu, Translator.get("image_viewer.next_image"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), this);
-        prevImageItem = MenuToolkit.addMenuItem(controlsMenu, Translator.get("image_viewer.previous_image"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), this);
+        nextImageItem = MenuToolkit.addMenuItem(controlsMenu, i18n("image_viewer.next_image"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), this);
+        prevImageItem = MenuToolkit.addMenuItem(controlsMenu, i18n("image_viewer.previous_image"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), this);
         controlsMenu.add(new TMenuSeparator());
-        if (OsFamily.getCurrent() != OsFamily.MAC_OS_X) {
-            zoomInItem = MenuToolkit.addMenuItem(controlsMenu, Translator.get("image_viewer.zoom_in"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_ADD, 0), this);
-            zoomOutItem = MenuToolkit.addMenuItem(controlsMenu, Translator.get("image_viewer.zoom_out"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, 0), this);
+        if (OsFamily.MAC_OS_X.isCurrent()) {
+            zoomInItem = MenuToolkit.addMenuItem(controlsMenu, i18n("image_viewer.zoom_in"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), this);
+            zoomOutItem = MenuToolkit.addMenuItem(controlsMenu, i18n("image_viewer.zoom_out"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), this);
         } else {
-            zoomInItem = MenuToolkit.addMenuItem(controlsMenu, Translator.get("image_viewer.zoom_in"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), this);
-            zoomOutItem = MenuToolkit.addMenuItem(controlsMenu, Translator.get("image_viewer.zoom_out"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), this);
+            zoomInItem = MenuToolkit.addMenuItem(controlsMenu, i18n("image_viewer.zoom_in"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_ADD, 0), this);
+            zoomOutItem = MenuToolkit.addMenuItem(controlsMenu, i18n("image_viewer.zoom_out"), menuMnemonicHelper, KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, 0), this);
         }
     }
     
@@ -145,7 +145,7 @@ class ImageViewer extends FileViewer implements ActionListener {
     @Override
     protected StatusBar getStatusBar() {
         if (statusBar == null) {
-        statusBar = new StatusBar();
+            statusBar = new StatusBar();
         }
         return statusBar;
     }
@@ -231,7 +231,7 @@ class ImageViewer extends FileViewer implements ActionListener {
     }
 
 
-    private static byte[] loadFile(AbstractFile file) throws IOException {
+    private static byte[] loadFile(AbstractFile file) {
         byte[] data = new byte[(int) file.getSize()];
         try (InputStream is = file.getInputStream()) {
             int readTotal = 0;
@@ -442,7 +442,7 @@ class ImageViewer extends FileViewer implements ActionListener {
             }
             updateFrame();
         } catch (IOException e) {
-            InformationDialog.showErrorDialog(this, Translator.get("file_viewer.view_error_title"), Translator.get("file_viewer.view_error"));
+            InformationDialog.showErrorDialog(this, i18n("file_viewer.view_error_title"), i18n("file_viewer.view_error"));
             e.printStackTrace();
         }
     }

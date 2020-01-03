@@ -66,7 +66,6 @@ public final class Credentials {
      * Returns <code>true</code> if these credentials are empty.
      * <p>
      * Credentials are said to be empty if both login and password are empty strings.
-     * </p>
      *
      * @return <code>true</code> if these credentials are empty, <code>false</code> otherwise.
      */
@@ -99,10 +98,9 @@ public final class Credentials {
      * <p>
      * Empty Credentials and <code>null</code> are considered equal: if a <code>null</code> instance is specified,
      * <code>true</code> is returned if these Credentials are {@link #isEmpty() empty}).
-     * </p>
      *
      * @param o the Object to test for equality
-     * @param passwordSensitive true if passwords need to be equal for credentials instanes to match
+     * @param passwordSensitive true if passwords need to be equal for credentials instances to match
      * @return true if this and the specified instance are equal
      */
     public boolean equals(Object o, boolean passwordSensitive) {

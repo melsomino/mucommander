@@ -22,7 +22,7 @@ package com.mucommander.ui.dialog.server;
 import com.mucommander.commons.file.Credentials;
 import com.mucommander.commons.file.FileProtocols;
 import com.mucommander.commons.file.FileURL;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.main.MainFrame;
 
 import javax.swing.*;
@@ -104,7 +104,7 @@ public class SMBPanel extends ServerPanel {
 
         // Insert the domain (if any) before the username, separated by a semicolon
         String userInfo = lastUsername;
-        if(!lastDomain.equals(""))
+        if(!lastDomain.isEmpty())
             userInfo = lastDomain+";"+userInfo;
 
         url.setCredentials(new Credentials(userInfo, lastPassword));

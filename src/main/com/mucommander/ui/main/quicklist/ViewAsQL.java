@@ -45,14 +45,14 @@ public class ViewAsQL extends QuickListWithDataList<ViewerFactory> {
 
     private class CommandViewFactory implements ViewerFactory {
 
-        private Command cmd;
+        private final Command cmd;
 
         CommandViewFactory(Command cmd) {
             this.cmd = cmd;
         }
 
         @Override
-        public boolean canViewFile(AbstractFile file) throws WarnUserException {
+        public boolean canViewFile(AbstractFile file) {
             return CommandManager.checkFileMask(cmd, file);
         }
 

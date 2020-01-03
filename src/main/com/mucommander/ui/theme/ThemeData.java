@@ -31,7 +31,7 @@ import java.util.WeakHashMap;
  * Base class for all things Theme.
  * <p>
  * The role of <code>ThemeData</code> is twofold:<br>
- * - theme data storage.<br/>
+ * - theme data storage.<br>
  * - default values retrievals and notification.<br>
  *
  * <p>
@@ -191,7 +191,7 @@ public class ThemeData implements ThemeId {
             @Override
             public Font getFont(ThemeData data) {
                 Font font = super.getFont(data);
-                if (OsFamily.getCurrent() == OsFamily.MAC_OS_X) {
+                if (OsFamily.MAC_OS_X.isCurrent()) {
                     return new Font("Menlo", font.getStyle(), font.getSize());
                 }
                 return font;

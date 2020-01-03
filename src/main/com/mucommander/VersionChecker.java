@@ -38,9 +38,8 @@ import com.mucommander.commons.file.FileFactory;
  * - date of latest release.<br>
  * - latest official version.<br>
  * - where to download the latest version from.<br>
- * This class is used to access those informations and compare them with what is known
+ * This class is used to access that information and compare them with what is known
  * of the current one, making it possible to notify users of new releases.
- * </p>
  * <p>
  * Checking for new releases is a fairly straightforward process, and can be done
  * with a few lines of code:
@@ -54,7 +53,7 @@ import com.mucommander.commons.file.FileFactory;
  *     else
  *         System.out.println("You've got the latest muCommander version");
  *    }
- * catch(Exception e) {System.err.println("An error occured.");}
+ * catch(Exception e) {System.err.println("An error occurred.");}
  * </pre>
  *
  * <p>
@@ -149,8 +148,8 @@ public class VersionChecker extends DefaultHandler {
         // Makes sure we retrieved the information we were looking for.
         // We're not checking the release date as older version of muCommander
         // didn't use it.
-        if(instance.latestVersion == null || instance.latestVersion.equals("") ||
-           instance.downloadURL == null   || instance.downloadURL.equals(""))
+        if(instance.latestVersion == null || instance.latestVersion.isEmpty() ||
+           instance.downloadURL == null   || instance.downloadURL.isEmpty())
             throw new Exception();
 
         return instance;
@@ -239,7 +238,7 @@ public class VersionChecker extends DefaultHandler {
      * Notifies the parser that a new tag is starting.
      */
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
         // Checks whether we know the tag and updates the current state.
         switch (qName) {
             case VERSION_ELEMENT:
@@ -264,7 +263,7 @@ public class VersionChecker extends DefaultHandler {
      * Notifies the parser that the current element is finished.
      */
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {state = STATE_UNKNOWN;}
+    public void endElement(String uri, String localName, String qName) {state = STATE_UNKNOWN;}
 
     /**
      * Notifies the parser that XML parsing is finished.

@@ -25,7 +25,7 @@ import com.mucommander.commons.file.impl.local.LocalFile;
 import com.mucommander.commons.file.util.FileSet;
 import com.mucommander.job.TempOpenWithJob;
 import com.mucommander.process.ProcessRunner;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.action.AbstractActionDescriptor;
 import com.mucommander.ui.action.ActionCategory;
 import com.mucommander.ui.action.ActionDescriptor;
@@ -60,7 +60,7 @@ public class CommandAction extends MuAction {
      * @param properties ignored.
      * @param command    command to init when this action is called.
      */
-    CommandAction(MainFrame mainFrame, Map<String, Object> properties, Command command) {
+    private CommandAction(MainFrame mainFrame, Map<String, Object> properties, Command command) {
         super(mainFrame, properties);
         this.command = command;
         setLabel(command.getDisplayName());
@@ -119,15 +119,25 @@ public class CommandAction extends MuAction {
     				command.getDisplayName());
     	}
 
-    	public String getId() { return ACTION_ID; }
+    	public String getId() {
+    	    return ACTION_ID;
+    	}
 
-    	public String getLabel() { return label; }
+    	public String getLabel() {
+    	    return label;
+    	}
 
-    	public ActionCategory getCategory() { return ActionCategory.COMMANDS; }
+    	public ActionCategory getCategory() {
+    	    return ActionCategory.COMMANDS;
+    	}
 
-    	public KeyStroke getDefaultAltKeyStroke() { return null; }
+    	public KeyStroke getDefaultAltKeyStroke() {
+    	    return null;
+    	}
 
-    	public KeyStroke getDefaultKeyStroke() { return null; }
+    	public KeyStroke getDefaultKeyStroke() {
+    	    return null;
+    	}
 
         public MuAction createAction(MainFrame mainFrame, Map<String,Object> properties) {
             return new CommandAction(mainFrame, properties, command);

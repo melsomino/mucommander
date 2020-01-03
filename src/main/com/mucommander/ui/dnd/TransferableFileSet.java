@@ -243,8 +243,9 @@ public class TransferableFileSet implements Transferable {
                 for (File aFileList : fileList) {
                     file = FileFactory.getFile(aFileList.getAbsolutePath());
 
-                    if (file != null)
+                    if (file != null) {
                         files.add(file);
+                    }
                 }
             }
             // Text plain DataFlavor: assume that lines designate file paths
@@ -322,7 +323,7 @@ public class TransferableFileSet implements Transferable {
     }
 
 
-    public Object getTransferData(DataFlavor dataFlavor) throws UnsupportedFlavorException, IOException {
+    public Object getTransferData(DataFlavor dataFlavor) throws UnsupportedFlavorException {
         int nbFiles = fileSet.size();
 
         // Return files stored in a FileSet instance (the one that was passed to the constructor)

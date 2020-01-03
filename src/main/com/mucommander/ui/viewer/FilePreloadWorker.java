@@ -20,7 +20,7 @@ package com.mucommander.ui.viewer;
 import com.mucommander.commons.HasProgress;
 import com.mucommander.commons.file.AbstractFile;
 import com.mucommander.commons.io.EncodingDetector;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.main.MainFrame;
 import com.mucommander.ui.main.statusbar.TaskWidget;
 
@@ -42,7 +42,7 @@ public class FilePreloadWorker extends SwingWorker<Void, Void> {
     private boolean taskWidgetAttached;
 
 
-    public FilePreloadWorker(AbstractFile file, MainFrame mainFrame, Runnable onFinish) {
+    FilePreloadWorker(AbstractFile file, MainFrame mainFrame, Runnable onFinish) {
         this.file = file;
         this.mainFrame = mainFrame;
         this.onFinish = onFinish;
@@ -51,7 +51,7 @@ public class FilePreloadWorker extends SwingWorker<Void, Void> {
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         try {
             publish();
             final PushbackInputStream is = file.getPushBackInputStream(EncodingDetector.MAX_RECOMMENDED_BYTE_SIZE);

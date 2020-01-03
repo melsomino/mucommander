@@ -29,7 +29,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import com.mucommander.text.SizeFormat;
+import com.mucommander.utils.text.SizeFormat;
 import com.mucommander.ui.action.impl.*;
 import com.mucommander.ui.main.table.views.BaseCellRenderer;
 import com.mucommander.ui.main.table.views.BaseFileTableModel;
@@ -43,6 +43,7 @@ import com.mucommander.ui.main.table.views.full.FileTableModel;
 import com.mucommander.ui.text.FilePathFieldKeyListener;
 import com.mucommander.ui.theme.*;
 import com.mucommander.utils.FileIconsCache;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +62,8 @@ import com.mucommander.conf.MuPreference;
 import com.mucommander.conf.MuPreferences;
 import com.mucommander.desktop.DesktopManager;
 import com.mucommander.job.MoveJob;
-import com.mucommander.text.CustomDateFormat;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.CustomDateFormat;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.action.ActionKeymap;
 import com.mucommander.ui.action.ActionManager;
 import com.mucommander.ui.action.MuAction;
@@ -104,9 +105,9 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
     // - Containers ----------------------------------------------------------------------
     // -----------------------------------------------------------------------------------
     /** Frame containing this file table. */
-    private MainFrame   mainFrame;
+    private final MainFrame mainFrame;
     /** Folder panel containing this frame. */
-    private FolderPanel folderPanel;
+    private final FolderPanel folderPanel;
 
 
     // - UI components -------------------------------------------------------------------
@@ -116,7 +117,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
     /** TableCellRender instance used by this JTable to render cells */
     private BaseCellRenderer cellRenderer;
     /** CellEditor used to edit filenames when clicked */
-    private FilenameEditor filenameEditor;
+    private final FilenameEditor filenameEditor;
 
     /** Contains sort-related variables */
     private final SortInfo sortInfo = new SortInfo();
@@ -152,7 +153,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
     private final QuickSearch quickSearch = new FileTableQuickSearch();
 
     /** TableSelectionListener instances registered to receive selection change events */
-    private WeakHashMap<TableSelectionListener, ?> tableSelectionListeners = new WeakHashMap<>();
+    private final WeakHashMap<TableSelectionListener, ?> tableSelectionListeners = new WeakHashMap<>();
 
     /** True when this table is the current or last active table in the MainFrame */
     private boolean isActiveTable;
@@ -171,17 +172,17 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
     private int doubleClickCounter = 1;
 
     /** Interval to wait for the double-click */
-    private static int DOUBLE_CLICK_INTERVAL = DesktopManager.getMultiClickInterval();
+    private static final int DOUBLE_CLICK_INTERVAL = DesktopManager.getMultiClickInterval();
 
     /** Wrapper of presentation adjustments for the file-table */
-    private FileTableWrapperForDisplay scrollpaneWrapper;
+    private final FileTableWrapperForDisplay scrollpaneWrapper;
 
     /** Table that shows the user to refresh if the location doesn't exist */
-    private DefaultOverlayable overlayTable;
+    private final DefaultOverlayable overlayTable;
 
     private TableViewMode viewMode;
 
-    private FileTableConfiguration conf;
+    private final FileTableConfiguration conf;
 
     /**
      * Number of visible rows on table. Calculated on layout and used to compact/short model
@@ -450,7 +451,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      * Being the active table doesn't necessarily mean that it currently has focus, the focus can be in some other component
      * of the active {@link FolderPanel}, or nowhere in the MainFrame if the window is not in the foreground.
      *
-     * <p>Use {@link #hasFocus()} to test if the table currently has focus.</p>
+     * <p>Use {@link #hasFocus()} to test if the table currently has focus.
      *
      * @return true if this table is the active one in the MainFrame
      * @see com.mucommander.ui.main.MainFrame#getActiveTable()
@@ -599,7 +600,6 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      * This method returns only when the folder has actually been changed and the table refreshed.<br>
      * <b>Important:</b> This method should only be called by {@link FolderPanel} and in any case MUST be synchronized
      * externally to ensure this method is never called concurrently by different threads.
-     * </p>
      *
      * @param folder the new current folder
      * @param children children of the specified folder
@@ -692,12 +692,10 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
         }
     }
 
-
-
     /**
      * Controls whether folders are displayed first in this FileTable or mixed with regular files.
      * After calling this method, the table is refreshed to reflect the change.
-     * 
+     *
      * @param enabled if true, folders are displayed before regular files. If false, files are mixed with directories.
      */
     public void setFoldersFirst(boolean enabled) {
@@ -706,6 +704,20 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
             sortTable();
         }
     }
+
+    /**
+     * Controls whether folders are sorted always alphabetical (if displayed first in this FileTable)
+     * After calling this method, the table is refreshed to reflect the change.
+     *
+     * @param enabled if true, folders are sorted alphabetical
+     */
+    public void setFoldersAlwaysAlphabetical(boolean enabled) {
+        if (sortInfo.getFoldersAlwaysAlphabetical() != enabled) {
+            sortInfo.setFoldersAlwaysAlphabetical(enabled);
+            sortTable();
+        }
+    }
+
 
     /**
      * Controls whether quick search matches are displayed first in this FileTable or mixed with other files.
@@ -773,7 +785,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      * and notifies registered {@link com.mucommander.ui.event.TableSelectionListener} that the files currently marked
      * on this FileTable have changed.
      *
-     * <p>This method has no effect if the row corresponds to the parent folder row '..' .</p>
+     * <p>This method has no effect if the row corresponds to the parent folder row '..' .
      *
      * @param index index of the file to mark/unmark
      * @param marked true to mark the file, false to unmark it
@@ -926,13 +938,18 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      * @param ascending true for ascending order, false for descending order
      * @param foldersFirst if true, folders are displayed before regular files. If false, files are mixed with directories.
      */
-    private void sortBy(Column criterion, boolean ascending, boolean foldersFirst) {
+    private void sortBy(Column criterion, boolean ascending, boolean foldersFirst, boolean foldersAlwaysAlphabetical) {
         // If we're not changing the current sort values, abort.
-        if (criterion == sortInfo.getCriterion() && ascending == sortInfo.getAscendingOrder() && foldersFirst == sortInfo.getFoldersFirst()) {
+        if (criterion == sortInfo.getCriterion()
+                && ascending == sortInfo.getAscendingOrder()
+                && foldersFirst == sortInfo.getFoldersFirst()
+                && foldersAlwaysAlphabetical == sortInfo.getFoldersAlwaysAlphabetical()
+            ) {
             return;
         }
 
         sortInfo.setFoldersFirst(foldersFirst);
+        sortInfo.setFoldersAlwaysAlphabetical(foldersAlwaysAlphabetical);
 
         // Ignore the sort criterion and order if the corresponding column is not visible
         if (isColumnVisible(criterion)) {
@@ -953,12 +970,12 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
     }
 
     /**
-     * Calls {@link #sortBy(Column, boolean, boolean)} with the sort information contained in the given {@link SortInfo}.
+     * Calls {@link #sortBy(Column, boolean, boolean, boolean)} with the sort information contained in the given {@link SortInfo}.
      *
      * @param sortInfo the information to use to sort this table.
      */
     public void sortBy(SortInfo sortInfo) {
-        sortBy(sortInfo.getCriterion(), sortInfo.getAscendingOrder(), sortInfo.getFoldersFirst());
+        sortBy(sortInfo.getCriterion(), sortInfo.getAscendingOrder(), sortInfo.getFoldersFirst(), sortInfo.getFoldersAlwaysAlphabetical());
     }
 
 
@@ -970,7 +987,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      * @param ascending true for ascending order, false for descending order
      */
     public void sortBy(Column criterion, boolean ascending) {
-        sortBy(criterion, ascending, sortInfo.getFoldersFirst());
+        sortBy(criterion, ascending, sortInfo.getFoldersFirst(), sortInfo.getFoldersAlwaysAlphabetical());
     }
 
     /**
@@ -1013,7 +1030,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
     }
 
     @Override
-    public void setColumnModel(TableColumnModel columnModel) {
+    public void setColumnModel(@NotNull TableColumnModel columnModel) {
         // super.setColumnModel() must be called BEFORE the methods below
         super.setColumnModel(columnModel);
         if (filenameEditor != null) {
@@ -1104,7 +1121,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      *
      * <p>If the current sort criterion corresponds to the specified column and this
      * column is disabled, the sort criterion will be reset to {@link Column#NAME} to prevent the table from being
-     * sorted by an invisible column/criterion.</p>
+     * sorted by an invisible column/criterion.
      *
      * @param column column, see {@link Column} for possible values
      * @param enabled true to enable the column, false to disable it.
@@ -1284,7 +1301,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
                 if (c == Column.EXTENSION) {
                     columnWidth = (int) FileIcons.getIconDimension().getWidth();
                 } else if (c == Column.DATE) {
-                    String val = CustomDateFormat.format(currentFolder.getLastModifiedDate());
+                    String val = currentFolder != null ? CustomDateFormat.format(currentFolder.getLastModifiedDate()) : "";
                     columnWidth = Math.max(MIN_COLUMN_AUTO_WIDTH, fm.stringWidth(val));
                     columnWidth *= 1.1;
                 } else if (c == Column.SIZE) {
@@ -1293,7 +1310,12 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
                     columnWidth = Math.max(dirStringWidth, fm.stringWidth(val));
                     columnWidth *= 1.1;
                 } else if (c == Column.PERMISSIONS) {
-                    columnWidth = Math.max(fm.stringWidth("WWWW"), fm.stringWidth(currentFolder.getPermissionsString()));
+                    try {
+                        String permissionStr = currentFolder != null ? currentFolder.getPermissionsString() : "----";
+                        columnWidth = Math.max(fm.stringWidth("WWWW"), fm.stringWidth(permissionStr));
+                    } catch (Exception e) {
+                        columnWidth = fm.stringWidth("WWWW");
+                    }
                 } else {
                     columnWidth = MIN_COLUMN_AUTO_WIDTH;
 
@@ -1461,6 +1483,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
             lastSelectedEqCnt++;
 
             if (lastSelectedEqCnt == 10) {
+                getLogger().warn("Sticky cursor!");
                 System.out.println("Sticky cursor!");
                 throw new RuntimeException("Sticky cursor!");
                /*
@@ -1566,7 +1589,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
                 e.consume(); // and make sure this event is not sent anywhere else
             }
         } else {
-            /* reset the counter for the double click count */
+            // reset the counter for the double click count
             doubleClickTime = System.currentTimeMillis();
             doubleClickCounter = 1;
         }
@@ -1791,7 +1814,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
     /////////////////////////////////
 
     public void activePanelChanged(FolderPanel folderPanel) {
-        isActiveTable = folderPanel==getFolderPanel();
+        isActiveTable = folderPanel == getFolderPanel();
 
         // Mac OS X 10.5 (Leopard) and up uses JTableHeader properties to render sort indicators on table headers
         // instead of a custom header renderer. These indicators change when the active table has changed. 
@@ -1820,7 +1843,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
         switch (event.getVariable()) {
             case MuPreferences.DISPLAY_COMPACT_FILE_SIZE:
             	FileTableModel.setSizeFormat(event.getBooleanValue());
-            	tableModel.fillCellCache();
+            	tableModel.fillCellCache(mainFrame.getActiveTable());
             	resizeAndRepaint();
                 break;
             case MuPreferences.DATE_FORMAT:
@@ -1831,7 +1854,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
                 // Since listeners are stored by MuConfiguration in a hash map, order is pretty much random.
                 // So CustomDateFormat#updateDateFormat() has to be called before to ensure that is uses the new date format.
                 CustomDateFormat.updateDateFormat();
-                tableModel.fillCellCache();
+                tableModel.fillCellCache(mainFrame.getActiveTable());
                 resizeAndRepaint();
                 break;
             case MuPreferences.TABLE_ICON_SCALE:
@@ -1864,7 +1887,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      */
     private class FilenameEditor extends DefaultCellEditor {
 
-        private JTextField filenameField;
+        private final JTextField filenameField;
 
         /** Row that is currently being edited */
         private int editingRow;
@@ -2130,20 +2153,8 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
 	        // Shift+Up/Shift+Down marks currently selected file and jumps to previous/next match
 	        else if ((keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_DOWN) && !keyHasModifiers) {
 	            // Find the first row before/after the current row that matches the search string
-	            boolean down = keyCode == KeyEvent.VK_DOWN;
-                int currentIndex = tableModel.getFileIndexAt(currentRow, currentColumn);
-                if (sortInfo.getQuickSearchMatchesFirst()) {
-                    if (currentIndex <= 1 && !down && tableModel.hasParentFolder()) {
-                        findMatch(getFilesCount() - 1, false, false);
-                    } else {
-                        findMatch(currentIndex + (down ? 1 : -1), down, false);
-                    }
-                } else {
-                    if (currentIndex != 1 || down || !tableModel.hasParentFolder()) {
-                        findMatch(currentIndex + (down ? 1 : -1), down, false);
-                    }
-                }
-	        }
+                jumpPrevNext(keyCode == KeyEvent.VK_DOWN);
+            }
 	        // MarkSelectedFileAction and MarkNextRowAction mark the current row and moves to the next match
 	        else if (ActionManager.getActionInstance(MarkSelectedFileAction.Descriptor.ACTION_ID, mainFrame).isAccelerator(KeyStroke.getKeyStrokeForEvent(e))
 	             || ActionManager.getActionInstance(MarkNextRowAction.Descriptor.ACTION_ID, mainFrame).isAccelerator(KeyStroke.getKeyStrokeForEvent(e))) {
@@ -2203,6 +2214,21 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
 	        // Update last search string's change timestamp
 	        setLastSearchStringChange(System.currentTimeMillis());
 	    }
+
+        private void jumpPrevNext(boolean next) {
+            int currentIndex = tableModel.getFileIndexAt(currentRow, currentColumn);
+            if (sortInfo.getQuickSearchMatchesFirst()) {
+                if (currentIndex <= 1 && !next && tableModel.hasParentFolder()) {
+                    findMatch(getFilesCount() - 1, false, false);
+                } else {
+                    findMatch(currentIndex + (next ? 1 : -1), next, false);
+                }
+            } else {
+                if (currentIndex != 1 || next || !tableModel.hasParentFolder()) {
+                    findMatch(currentIndex + (next ? 1 : -1), next, false);
+                }
+            }
+        }
     }
 
     // End of QuickSearch class
@@ -2247,10 +2273,10 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
      * @author Nicolas Rinaudo, Maxence Bernard
      */
     private class FolderChangeThread implements Runnable {
-        private AbstractFile   folder;
-        private AbstractFile[] children;
-        private FileSet        markedFiles;
-        private AbstractFile   selectedFile;
+        private final AbstractFile   folder;
+        private final AbstractFile[] children;
+        private final FileSet        markedFiles;
+        private final AbstractFile   selectedFile;
 
         private FolderChangeThread(AbstractFile folder, AbstractFile[] children, FileSet markedFiles, AbstractFile selectedFile) {
             this.folder       = folder;
@@ -2263,7 +2289,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
         public void run() {
             try {
                 // Set the new current folder.
-                tableModel.setCurrentFolder(folder, children);
+                tableModel.setCurrentFolder(folder, children, FileTable.this);
                 // Update the visibility state of conditional columns
                 FileTableColumnModel columnModel = getFileTableColumnModel();
 
@@ -2285,20 +2311,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
                 tableModel.sortRows();
 
                 // Computes the index of the new row selection.
-                int indexToSelect;
-                int currentIndex = tableModel.getFileIndexAt(currentRow, currentColumn);
-                if (selectedFile != null) {
-                    // Tries to find the index of the file to select. If it cannot be found (the file might not
-                    // exist anymore, for example), use the closest possible row.
-                    indexToSelect = tableModel.getFileIndex(selectedFile);
-                    if (indexToSelect < 0) {
-                        int filesCount = tableModel.getFilesCount();
-                        indexToSelect = currentIndex < filesCount ? currentIndex : filesCount - 1;
-                    }
-                } else {
-                    // If no file was marked as needing to be selected, selects the first line.
-                    indexToSelect = 0;
-                }
+                int indexToSelect = getIndexToSelect();
 
                 selectFile(indexToSelect);
                 fireSelectedFileChangedEvent();
@@ -2307,7 +2320,7 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
                 if (markedFiles != null) {
                     // Restore previously marked files
                     int nbMarkedFiles = markedFiles.size();
-                    for(int i = 0; i < nbMarkedFiles; i++) {
+                    for (int i = 0; i < nbMarkedFiles; i++) {
                         int fileIndex = tableModel.getFileIndex(markedFiles.elementAt(i));
                         if (fileIndex != -1) {
                             tableModel.setFileMarked(fileIndex, true);
@@ -2321,12 +2334,32 @@ public class FileTable extends JTable implements MouseListener, MouseMotionListe
                 // While no such thing should happen, we want to make absolutely sure no exception
                 // is propagated to the AWT event dispatch thread.
                 getLogger().warn("Caught exception while changing folder, this should not happen!", e);
+                getLogger().warn(e.getMessage());
+//    for (StackTraceElement ste  : e.getStackTrace()) {
+//        getLogger().warn(ste.toString());
+//    }
             } finally {
                 // Notify #setCurrentFolder that we're done changing the folder.
                 synchronized(this) {
                     notify();
                 }
             }
+        }
+
+        private int getIndexToSelect() {
+            int currentIndex = tableModel.getFileIndexAt(currentRow, currentColumn);
+            if (selectedFile == null) {
+                // If no file was marked as needing to be selected, selects the first line.
+                return 0;
+            }
+            // Tries to find the index of the file to select. If it cannot be found (the file might not
+            // exist anymore, for example), use the closest possible row.
+            int indexToSelect = tableModel.getFileIndex(selectedFile);
+            if (indexToSelect < 0) {
+                int filesCount = tableModel.getFilesCount();
+                return currentIndex < filesCount ? currentIndex : filesCount - 1;
+            }
+            return indexToSelect;
         }
     }
 

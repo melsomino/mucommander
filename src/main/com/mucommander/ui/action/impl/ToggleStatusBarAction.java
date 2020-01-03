@@ -21,7 +21,7 @@ package com.mucommander.ui.action.impl;
 import com.mucommander.conf.MuConfigurations;
 import com.mucommander.conf.MuPreference;
 import com.mucommander.conf.MuPreferences;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.action.AbstractActionDescriptor;
 import com.mucommander.ui.action.ActionCategory;
 import com.mucommander.ui.action.ActionDescriptor;
@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class ToggleStatusBarAction extends MuAction {
 
-    ToggleStatusBarAction(MainFrame mainFrame, Map<String, Object> properties) {
+    private ToggleStatusBarAction(MainFrame mainFrame, Map<String, Object> properties) {
         super(mainFrame, properties);
         updateLabel(MuConfigurations.getPreferences().getVariable(MuPreference.STATUS_BAR_VISIBLE, MuPreferences.DEFAULT_STATUS_BAR_VISIBLE));
     }
@@ -76,16 +76,26 @@ public class ToggleStatusBarAction extends MuAction {
     public static final class Descriptor extends AbstractActionDescriptor {
     	public static final String ACTION_ID = "ToggleStatusBar";
     	
-		public String getId() { return ACTION_ID; }
+		public String getId() {
+		    return ACTION_ID;
+		}
 
-		public ActionCategory getCategory() { return ActionCategory.VIEW; }
+		public ActionCategory getCategory() {
+		    return ActionCategory.VIEW;
+		}
 
-		public KeyStroke getDefaultAltKeyStroke() { return null; }
+		public KeyStroke getDefaultAltKeyStroke() {
+		    return null;
+		}
 
-		public KeyStroke getDefaultKeyStroke() { return null; }
+		public KeyStroke getDefaultKeyStroke() {
+		    return null;
+		}
 
         @Override
-        public String getLabelKey() { return ACTION_ID+".show"; }
+        public String getLabelKey() {
+		    return ACTION_ID+  ".show";
+		}
 
         public MuAction createAction(MainFrame mainFrame, Map<String,Object> properties) {
             return new ToggleStatusBarAction(mainFrame, properties);

@@ -18,8 +18,8 @@
 
 package com.mucommander.command;
 
-import com.mucommander.xml.XmlAttributes;
-import com.mucommander.xml.XmlWriter;
+import com.mucommander.utils.xml.XmlAttributes;
+import com.mucommander.utils.xml.XmlWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,7 +29,7 @@ import java.io.OutputStream;
  * <p>
  * <code>CommandWriter</code> is a {@link CommandBuilder} that will send
  * all build messages it receives into an XML stream (as defined in {@link CommandsXmlConstants}).
- * </p>
+ *
  * @author Nicolas Rinaudo
  */
 public class CommandWriter implements CommandsXmlConstants, CommandBuilder {
@@ -47,7 +47,9 @@ public class CommandWriter implements CommandsXmlConstants, CommandBuilder {
      * @param  stream      where to write the XML data.
      * @throws IOException if an IO error occurs.
      */
-    public CommandWriter(OutputStream stream) throws IOException {out = new XmlWriter(stream);}
+    CommandWriter(OutputStream stream) throws IOException {
+        out = new XmlWriter(stream);
+    }
 
 
 

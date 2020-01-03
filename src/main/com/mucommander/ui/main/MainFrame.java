@@ -20,6 +20,7 @@ package com.mucommander.ui.main;
 
 import com.apple.eawt.FullScreenUtilities;
 import com.mucommander.commons.file.AbstractArchiveEntryFile;
+import com.mucommander.commons.file.AbstractArchiveFile;
 import com.mucommander.commons.file.AbstractFile;
 import com.mucommander.commons.file.FileProtocols;
 import com.mucommander.commons.runtime.JavaVersion;
@@ -39,6 +40,7 @@ import com.mucommander.ui.event.LocationListener;
 import com.mucommander.ui.icon.IconManager;
 import com.mucommander.ui.layout.ProportionalSplitPane;
 import com.mucommander.ui.layout.YBoxPanel;
+import com.mucommander.ui.macosx.IMacOsWindow;
 import com.mucommander.ui.main.commandbar.CommandBar;
 import com.mucommander.ui.main.menu.MainMenuBar;
 import com.mucommander.ui.main.statusbar.StatusBar;
@@ -64,7 +66,7 @@ import java.util.WeakHashMap;
  * 
  * @author Maxence Bernard
  */
-public class MainFrame extends JFrame implements LocationListener {
+public class MainFrame extends JFrame implements LocationListener, IMacOsWindow {
 	
     private ProportionalSplitPane splitPane;
 
@@ -114,8 +116,9 @@ public class MainFrame extends JFrame implements LocationListener {
         // TODO: this code should probably be moved to the desktop API
 
         // - Mac OS X completely ignores calls to #setIconImage/setIconImages, no need to waste time
-        if (OsFamily.MAC_OS_X.isCurrent())
+        if (OsFamily.MAC_OS_X.isCurrent()) {
             return;
+        }
 
         // Use Java 1.6 's new Window#setIconImages(List<Image>) when available
         if (JavaVersion.JAVA_1_6.isCurrentOrHigher()) {
@@ -153,6 +156,7 @@ public class MainFrame extends JFrame implements LocationListener {
     private void init(FolderPanel leftFolderPanel, FolderPanel rightFolderPanel) {
         // Set the window icon
         setWindowIcon();
+        //initLookAndFeel();
 
         if (OsFamily.MAC_OS_X.isCurrent()) {
         	// Lion Fullscreen support
@@ -207,7 +211,7 @@ public class MainFrame extends JFrame implements LocationListener {
         // in JSplitPane which is anti-natural / confusing.
         splitPane = new ProportionalSplitPane(this,
         		MuConfigurations.getSnapshot().getVariable(MuSnapshot.getSplitOrientation(0), MuSnapshot.DEFAULT_SPLIT_ORIENTATION).equals(MuSnapshot.VERTICAL_SPLIT_ORIENTATION) ?
-                                              	JSplitPane.HORIZONTAL_SPLIT:JSplitPane.VERTICAL_SPLIT,
+                                              	JSplitPane.HORIZONTAL_SPLIT : JSplitPane.VERTICAL_SPLIT,
                                               false,
                                               MainFrame.this.leftFolderPanel,
                                               MainFrame.this.rightFolderPanel) {
@@ -344,8 +348,9 @@ public class MainFrame extends JFrame implements LocationListener {
      * @param folderPanel the new active panel
      */
     private void fireActivePanelChanged(FolderPanel folderPanel) {
-        for (ActivePanelListener listener : activePanelListeners.keySet())
+        for (ActivePanelListener listener : activePanelListeners.keySet()) {
             listener.activePanelChanged(folderPanel);
+        }
     }
 
 
@@ -424,9 +429,9 @@ public class MainFrame extends JFrame implements LocationListener {
      * Returns the currently active table.
      *
      * <p>The returned table doesn't necessarily have focus, the focus can be in some other component
-     * of the active {@link FolderPanel}, or nowhere in the MainFrame if it is currently not in the foreground.</p>
+     * of the active {@link FolderPanel}, or nowhere in the MainFrame if it is currently not in the foreground.
      *
-     * <p>Use {@link FileTable#hasFocus()} to test if the table currently has focus.</p>
+     * <p>Use {@link FileTable#hasFocus()} to test if the table currently has focus.
      *
      * @return the currently active table
      * @see FileTable#isActiveTable()
@@ -439,7 +444,7 @@ public class MainFrame extends JFrame implements LocationListener {
      * Returns the currently active panel.
      *
      * <p>The returned panel doesn't necessarily have focus, for example if the MainFrame is currently not in the
-     * foreground.</p>
+     * foreground.
      *
      * @return the currently active panel
      */
@@ -522,7 +527,7 @@ public class MainFrame extends JFrame implements LocationListener {
     public void setSplitPaneOrientation(boolean vertical) {
         // Note: the vertical/horizontal terminology used in muCommander is just the opposite of the one used
         // in JSplitPane which is anti-natural / confusing
-        splitPane.setOrientation(vertical?JSplitPane.HORIZONTAL_SPLIT:JSplitPane.VERTICAL_SPLIT);
+        splitPane.setOrientation(vertical ? JSplitPane.HORIZONTAL_SPLIT : JSplitPane.VERTICAL_SPLIT);
     }
 
     /**
@@ -617,7 +622,7 @@ public class MainFrame extends JFrame implements LocationListener {
     }
 
     /**
-     * Forces a refrehs of the frame's folder panel.
+     * Forces a refresh of the frame's folder panel.
      */
     public void tryRefreshCurrentFolders() {
         leftFolderPanel.tryRefreshCurrentFolder();
@@ -649,7 +654,8 @@ public class MainFrame extends JFrame implements LocationListener {
      */
     public void updateWindowTitle() {
         // Update window title
-        String title = activeTable.getFolderPanel().getCurrentFolder().getAbsolutePath();
+        AbstractFile currentFolder = activeTable.getFolderPanel().getCurrentFolder();
+        String title = currentFolder != null ? currentFolder.getAbsolutePath() : "";
 
 	// Add the application name to window title on all OSs except MAC
         if (!OsFamily.MAC_OS_X.isCurrent()) {
@@ -663,15 +669,15 @@ public class MainFrame extends JFrame implements LocationListener {
         setTitle(title);
 
         // Use new Window decorations introduced in Mac OS X 10.5 (Leopard)
-        if (OsFamily.MAC_OS_X.isCurrent() && OsVersion.MAC_OS_X_10_5.isCurrentOrHigher()) {
+        if (OsFamily.MAC_OS_X.isCurrent() && OsVersion.MAC_OS_X_10_5.isCurrentOrHigher() && currentFolder != null) {
             // Displays the document icon in the window title bar, works only for local files
-            AbstractFile currentFolder = activeTable.getFolderPanel().getCurrentFolder();
             Object javaIoFile;
             if (currentFolder.getURL().getScheme().equals(FileProtocols.FILE)) {
                 // If the current folder is an archive entry, display the archive file, this is the closest we can get
                 // with a java.io.File
                 if (currentFolder.hasAncestor(AbstractArchiveEntryFile.class)) {
-                    javaIoFile = currentFolder.getParentArchive().getUnderlyingFileObject();
+                    AbstractArchiveFile parent = currentFolder.getParentArchive();
+                    javaIoFile = parent != null ? parent.getUnderlyingFileObject() : null;
                 } else {
                     javaIoFile = currentFolder.getUnderlyingFileObject();
                 }

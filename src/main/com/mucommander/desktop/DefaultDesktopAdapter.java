@@ -76,7 +76,7 @@ public class DefaultDesktopAdapter implements DesktopAdapter {
      * <p>
      * This method is empty. See {@link DesktopAdapter#init(boolean)} for information on
      * how to override it.
-     * </p>
+     *
      * @param  install                        <code>true</code> if this is the application's first boot, <code>false</code> otherwise.
      * @throws DesktopInitialisationException if any error occurs.
      */
@@ -86,20 +86,22 @@ public class DefaultDesktopAdapter implements DesktopAdapter {
     /**
      * Returns <code>true</code> if the specified mouse event describes a left click.
      * <p>
-     * This method will return <code>true</code> if <code>(e.getModifiers() & MouseEvent.BUTTON1_MASK)</code>
+     * This method will return <code>true</code> if <code>(e.getModifiers() &amp; MouseEvent.BUTTON1_MASK)</code>
      * doesn't equal 0.
-     * </p>
+     *
      * @param  e event to check.
      * @return   <code>true</code> if the specified event is a left-click, <code>false</code> otherwise.
      * @see      #isRightMouseButton(MouseEvent)
      * @see      #isMiddleMouseButton(MouseEvent)
      */
-    public boolean isLeftMouseButton(MouseEvent e) {return (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0;}
+    public boolean isLeftMouseButton(MouseEvent e) {
+        return (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0;
+    }
 
     /**
      * Returns <code>true</code> if the specified mouse event describes a middle click.
      * <p>
-     * This method will return <code>true</code> if <code>(e.getModifiers() & MouseEvent.BUTTON3_MASK)</code>
+     * This method will return <code>true</code> if <code>(e.getModifiers() &amp; MouseEvent.BUTTON3_MASK)</code>
      * doesn't equal 0.
      *
      * @param  e event to check.
@@ -107,12 +109,14 @@ public class DefaultDesktopAdapter implements DesktopAdapter {
      * @see      #isRightMouseButton(MouseEvent)
      * @see      #isLeftMouseButton(MouseEvent)
      */
-    public boolean isRightMouseButton(MouseEvent e) {return (e.getModifiers() & MouseEvent.BUTTON3_MASK) !=0;}
+    public boolean isRightMouseButton(MouseEvent e) {
+        return (e.getModifiers() & MouseEvent.BUTTON3_MASK) !=0;
+    }
 
     /**
      * Returns <code>true</code> if the specified mouse event describes a right click.
      * <p>
-     * This method will return <code>true</code> if <code>(e.getModifiers() & MouseEvent.BUTTON2_MASK)</code>
+     * This method will return <code>true</code> if <code>(e.getModifiers() &amp; MouseEvent.BUTTON2_MASK)</code>
      * doesn't equal 0.
      *
      * @param  e event to check.
@@ -120,7 +124,9 @@ public class DefaultDesktopAdapter implements DesktopAdapter {
      * @see      #isLeftMouseButton(MouseEvent)
      * @see      #isMiddleMouseButton(MouseEvent)
      */
-    public boolean isMiddleMouseButton(MouseEvent e) {return (e.getModifiers() & MouseEvent.BUTTON2_MASK) != 0;}
+    public boolean isMiddleMouseButton(MouseEvent e) {return (
+            e.getModifiers() & MouseEvent.BUTTON2_MASK) != 0;
+    }
 
     /**
      * Returns the value of the <code>"awt.multiClickInterval"</code> desktop property that AWT/Swing uses internally
@@ -146,7 +152,7 @@ public class DefaultDesktopAdapter implements DesktopAdapter {
 
 
     private String getDefaultShellPath() {
-        if (OsFamily.getCurrent() == OsFamily.WINDOWS) {
+        if (OsFamily.WINDOWS.isCurrent()) {
             return "cmd.exe";
         }
         if (defaultShell == null) {
@@ -165,7 +171,7 @@ public class DefaultDesktopAdapter implements DesktopAdapter {
 
     public String getDefaultTerminalShellCommand() {
         String path = getDefaultShellPath();
-        if (OsFamily.getCurrent() != OsFamily.WINDOWS) {
+        if (!OsFamily.WINDOWS.isCurrent()) {
             return path + " --login";
         }
         return path;

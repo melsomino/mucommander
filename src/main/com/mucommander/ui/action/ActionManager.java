@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
  * in several components of a MainFrame at the same time; if an action's state changes, the change must be reflected
  * everywhere the action is used. It is also important for performance reasons: sharing one action throughout a
  * {@link com.mucommander.ui.main.MainFrame} saves some memory and also CPU cycles as some actions listen to particular events to change
- * their state accordingly.</p>
+ * their state accordingly.
  *
  * @see MuAction
  * @see ActionParameters
@@ -77,6 +77,7 @@ public class ActionManager {
     	registerAction(new CloseTabAction.Descriptor());
 //    	registerAction(new CommandAction.Descriptor());
     	registerAction(new CompareFoldersAction.Descriptor());
+		registerAction(new CompareFolderFilesAction.Descriptor());
     	registerAction(new ConnectToServerAction.Descriptor());
     	registerAction(new CopyAction.Descriptor());
     	registerAction(new CopyFileBaseNamesAction.Descriptor());
@@ -131,6 +132,7 @@ public class ActionManager {
     	registerAction(new NewWindowAction.Descriptor());
     	registerAction(new NextTabAction.Descriptor());
     	registerAction(new OpenAction.Descriptor());
+		registerAction(new OpenAsAction.Descriptor());
     	registerAction(new OpenInBothPanelsAction.Descriptor());
     	registerAction(new OpenInNewTabAction.Descriptor());
     	registerAction(new OpenInOtherPanelAction.Descriptor());
@@ -192,6 +194,7 @@ public class ActionManager {
     	registerAction(new ShowRootFoldersQLAction.Descriptor());
         registerAction(new ShowRecentViewedFilesQLAction.Descriptor());
         registerAction(new ShowRecentEditedFilesQLAction.Descriptor());
+		registerAction(new ShowEditorBookmarksQLAction.Descriptor());
     	registerAction(new ShowServerConnectionsAction.Descriptor());
     	registerAction(new ShowTabsQLAction.Descriptor());
     	registerAction(new SortByDateAction.Descriptor());
@@ -220,12 +223,14 @@ public class ActionManager {
     	registerAction(new ToggleOwnerColumnAction.Descriptor());
     	registerAction(new TogglePermissionsColumnAction.Descriptor());
     	registerAction(new ToggleShowFoldersFirstAction.Descriptor());
+    	registerAction(new ToggleFoldersAlwaysAlphabeticalAction.Descriptor());
     	registerAction(new ToggleSizeColumnAction.Descriptor());
     	registerAction(new ToggleStatusBarAction.Descriptor());
     	registerAction(new ToggleToolBarAction.Descriptor());
     	registerAction(new ToggleTreeAction.Descriptor());
     	registerAction(new UnmarkAllAction.Descriptor());
     	registerAction(new UnmarkGroupAction.Descriptor());
+		registerAction(new MarkEmptyFilesAction.Descriptor());
     	registerAction(new UnpackAction.Descriptor());
     	registerAction(new ViewAction.Descriptor());
         registerAction(new ViewAsAction.Descriptor());
@@ -243,6 +248,8 @@ public class ActionManager {
 		registerAction(new EjectDriveAction.Descriptor());
 		registerAction(new CompareFilesAction.Descriptor());
 		registerAction(new TogglePanelPreviewModeAction.Descriptor());
+		registerAction(new TextEditorsListAction.Descriptor());
+		registerAction(new UserMenuAction.Descriptor());
     }
 
 	public static void registerCommandsActions() {
@@ -260,7 +267,6 @@ public class ActionManager {
      * @param actionDescriptor - ActionDescriptor instance of the action.
      */
     private static void registerAction(ActionDescriptor actionDescriptor) {
-    	//actionFactories.put(actionDescriptor.getId(), actionDescriptor);	// TODO
     	ActionProperties.addActionDescriptor(actionDescriptor);
     }
     
@@ -271,7 +277,6 @@ public class ActionManager {
      */
     public static Iterator<String> getActionIds() {
 		return ActionProperties.actionDescriptors.keySet().iterator();
-    	//return actionFactories.keySet().iterator();
     }
     
     /**
@@ -281,13 +286,12 @@ public class ActionManager {
      * @return String representing the id of the MuAction in the specified path. null is returned if the given path is invalid.
      */
     public static String extrapolateId(String actionClassPath) {
-    	if (actionClassPath == null)
-    		return null;
+    	if (actionClassPath == null) {
+			return null;
+		}
     	
     	Matcher matcher = PATTERN.matcher(actionClassPath);
-    	return matcher.matches() ? 
-    			matcher.group(1)
-    			: actionClassPath;
+    	return matcher.matches() ? matcher.group(1) : actionClassPath;
     }
     
     /**
@@ -349,13 +353,9 @@ public class ActionManager {
      * MuAction action denoted by the ActionParameters could not be found or could not be instantiated.
      */
     public static MuAction getActionInstance(ActionParameters actionParameters, MainFrame mainFrame) {
-        Map<ActionParameters, ActionAndIdPair> mainFrameActions = mainFrameActionsMap.get(mainFrame);
-        if (mainFrameActions == null) {
-            mainFrameActions = new Hashtable<>();
-            mainFrameActionsMap.put(mainFrame, mainFrameActions);
-        }
+		Map<ActionParameters, ActionAndIdPair> mainFrameActions = mainFrameActionsMap.computeIfAbsent(mainFrame, k -> new Hashtable<>());
 
-        // Looks for an existing MuAction instance used by the specified MainFrame
+		// Looks for an existing MuAction instance used by the specified MainFrame
         if (mainFrameActions.containsKey(actionParameters)) {
         	return mainFrameActions.get(actionParameters).getAction();
         } else {

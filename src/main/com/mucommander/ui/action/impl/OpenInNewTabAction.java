@@ -37,12 +37,12 @@ import com.mucommander.ui.main.table.FileTable;
  * <p>
  * This action is only enabled if the current selection is browsable as defined by
  * {@link com.mucommander.commons.file.AbstractFile#isBrowsable()}.
- * </p>
+ *
  * @author Arik Hadas
  */
 public class OpenInNewTabAction extends SelectedFileAction {
 
-	OpenInNewTabAction(MainFrame mainFrame, Map<String, Object> properties) {
+	private OpenInNewTabAction(MainFrame mainFrame, Map<String, Object> properties) {
         super(mainFrame, properties);
     }
 	
@@ -88,18 +88,20 @@ public class OpenInNewTabAction extends SelectedFileAction {
     public static final class Descriptor extends AbstractActionDescriptor {
     	public static final String ACTION_ID = "OpenInNewTab";
     	
-		public String getId() { return ACTION_ID; }
+		public String getId() {
+		    return ACTION_ID;
+		}
 
-		public ActionCategory getCategory() { return ActionCategory.NAVIGATION; }
+		public ActionCategory getCategory() {
+		    return ActionCategory.NAVIGATION;
+		}
 
-		public KeyStroke getDefaultAltKeyStroke() { return null; }
+		public KeyStroke getDefaultAltKeyStroke() {
+		    return null;
+		}
 
 		public KeyStroke getDefaultKeyStroke() {
-            if (OsFamily.getCurrent() != OsFamily.MAC_OS_X) {
-                return KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.CTRL_DOWN_MASK);
-            } else {
-                return KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.META_DOWN_MASK);
-            }
+            return KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, CTRL_OR_META_DOWN_MASK);
         }
 
         public MuAction createAction(MainFrame mainFrame, Map<String,Object> properties) {

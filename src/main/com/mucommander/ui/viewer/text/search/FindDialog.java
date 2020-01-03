@@ -17,7 +17,6 @@
  */
 package com.mucommander.ui.viewer.text.search;
 
-import com.mucommander.text.Translator;
 import org.fife.ui.rtextarea.SearchContext;
 
 import javax.swing.*;
@@ -37,9 +36,11 @@ public class FindDialog extends AbstractSearchDialog {
      */
     private SearchListener searchListener;
 
+    private static String lastSearchedStr;
+
 
     public FindDialog(Frame owner, SearchListener listener) {
-        super(owner, Translator.get("text_viewer.find"), null);
+        super(owner, i18n("text_viewer.find"), null);
 
         this.searchListener = listener;
 
@@ -101,6 +102,7 @@ public class FindDialog extends AbstractSearchDialog {
         super.actionPerformed(e);
         Object src = e.getSource();
         if (src == btnFind || src == edtText) {
+            lastSearchedStr = edtText.getText();
             dispose();
         }
     }
@@ -150,6 +152,10 @@ public class FindDialog extends AbstractSearchDialog {
         public void changedUpdate(DocumentEvent e) {
         }
 
+    }
+
+    public static String getLastSearchStr() {
+        return lastSearchedStr;
     }
 
 

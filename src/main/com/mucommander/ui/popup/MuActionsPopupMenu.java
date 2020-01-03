@@ -25,6 +25,7 @@ import javax.swing.JPopupMenu;
 import com.mucommander.ui.action.ActionManager;
 import com.mucommander.ui.helper.MenuToolkit;
 import com.mucommander.ui.main.MainFrame;
+import ru.trolsoft.ui.TMenuSeparator;
 
 /**
  * Abstract class for popup menus that display MuActions.
@@ -34,7 +35,7 @@ import com.mucommander.ui.main.MainFrame;
 public abstract class MuActionsPopupMenu extends JPopupMenu {
 
 	/** Parent MainFrame instance */
-    private MainFrame mainFrame;
+    private final MainFrame mainFrame;
     
     public MuActionsPopupMenu(MainFrame mainFrame) {
     	this.mainFrame = mainFrame;
@@ -53,5 +54,10 @@ public abstract class MuActionsPopupMenu extends JPopupMenu {
     	JMenuItem item = super.add(a);
     	MenuToolkit.configureActionMenuItem(item);
     	return item;
+    }
+
+    @Override
+    public void addSeparator() {
+        add(new TMenuSeparator());
     }
 }

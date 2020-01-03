@@ -40,7 +40,7 @@ import com.mucommander.conf.MuPreference;
 import com.mucommander.conf.MuPreferences;
 import com.mucommander.io.backup.BackupInputStream;
 import com.mucommander.io.backup.BackupOutputStream;
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.theme.Theme.Type;
 
 /**
@@ -128,21 +128,22 @@ public class ThemeManager {
             type = getThemeTypeFromLabel(MuPreferences.DEFAULT_THEME_TYPE);
             name = MuPreferences.DEFAULT_THEME_NAME;
 
-            if (type == Theme.Type.USER)
+            if (type == Theme.Type.USER) {
                 wasUserThemeLoaded = true;
+            }
 
             // If the default theme can be loaded, tries to load the user theme if we haven't done so yet.
             // If we have, or if it fails, defaults to an empty user theme.
             try {
                 currentTheme = readTheme(type, name);
             } catch(Exception e2) {
-                if(!wasUserThemeLoaded) {
+                if (!wasUserThemeLoaded) {
                     try {currentTheme = readTheme(Theme.Type.USER, null);}
                     catch(Exception e3) {
                         e3.printStackTrace();
                     }
                 }
-                if(currentTheme == null) {
+                if (currentTheme == null) {
                     currentTheme         = new Theme(listener);
                     wasUserThemeModified = true;
                 }
@@ -735,9 +736,8 @@ public class ThemeManager {
      * Returns an input stream on the requested predefined theme.
      * @param  name        name of the predefined theme on which to open an input stream.
      * @return             an input stream on the requested predefined theme.
-     * @throws IOException if an I/O related error occurs.
      */
-    private static InputStream getPredefinedThemeInputStream(String name) throws IOException {
+    private static InputStream getPredefinedThemeInputStream(String name) {
         return ResourceLoader.getResourceAsStream(RuntimeConstants.THEMES_PATH + "/" + name + ".xml");
     }
 
@@ -745,9 +745,8 @@ public class ThemeManager {
      * Returns an input stream on the requested predefined theme for editor.
      * @param  name        name of the predefined editor theme on which to open an input stream.
      * @return             an input stream on the requested predefined theme.
-     * @throws IOException if an I/O related error occurs.
      */
-    private static InputStream getPredefinedEditorThemeInputStream(String name) throws IOException {
+    private static InputStream getPredefinedEditorThemeInputStream(String name) {
         return ResourceLoader.getResourceAsStream(RuntimeConstants.TEXT_SYNTAX_THEMES_PATH + "/" + name + ".xml");
     }
 
@@ -1124,8 +1123,9 @@ public class ThemeManager {
      */
     private static void triggerFontEvent(FontChangedEvent event) {
         synchronized (listeners) {
-            for(ThemeListener listener : listeners.keySet())
+            for (ThemeListener listener : listeners.keySet()) {
                 listener.fontChanged(event);
+            }
         }
     }
 
@@ -1136,8 +1136,9 @@ public class ThemeManager {
      */
     private static void triggerColorEvent(ColorChangedEvent event) {
         synchronized (listeners) {
-            for(ThemeListener listener : listeners.keySet())
+            for (ThemeListener listener : listeners.keySet()) {
                 listener.colorChanged(event);
+            }
         }
     }
 
@@ -1175,19 +1176,23 @@ public class ThemeManager {
      */
     private static class CurrentThemeListener implements ThemeListener {
         public void fontChanged(FontChangedEvent event) {
-            if(event.getSource().getType() == Theme.Type.USER)
+            if (event.getSource().getType() == Theme.Type.USER) {
                 wasUserThemeModified = true;
+            }
 
-            if(event.getSource() == currentTheme)
+            if (event.getSource() == currentTheme) {
                 triggerFontEvent(event);
+            }
         }
 
         public void colorChanged(ColorChangedEvent event) {
-            if(event.getSource().getType() == Theme.Type.USER)
+            if (event.getSource().getType() == Theme.Type.USER) {
                 wasUserThemeModified = true;
+            }
 
-            if(event.getSource() == currentTheme)
+            if (event.getSource() == currentTheme) {
                 triggerColorEvent(event);
+            }
         }
     }
 

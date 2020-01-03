@@ -34,7 +34,7 @@ import java.util.Map;
  * <p>
  * This action is only enabled if the current selection is browsable as defined by
  * {@link com.mucommander.commons.file.AbstractFile#isBrowsable()}.
- * </p>
+ *
  * @author Nicolas Rinaudo
  */
 public class OpenInOtherPanelAction extends SelectedFileAction {
@@ -43,7 +43,7 @@ public class OpenInOtherPanelAction extends SelectedFileAction {
      * @param mainFrame  frame to which the action is attached.
      * @param properties action's properties.
      */
-    OpenInOtherPanelAction(MainFrame mainFrame, Map<String, Object> properties) {
+    private OpenInOtherPanelAction(MainFrame mainFrame, Map<String, Object> properties) {
         super(mainFrame, properties);
     }
 
@@ -73,8 +73,9 @@ public class OpenInOtherPanelAction extends SelectedFileAction {
         AbstractFile file = mainFrame.getActiveTable().getSelectedFile(true, true);
 
         // Retrieves the currently selected file, aborts if none (should not normally happen).
-        if (file == null || !file.isBrowsable())
+        if (file == null || !file.isBrowsable()) {
             return;
+        }
 
         // Opens the currently selected file in the inactive panel.
         mainFrame.getInactivePanel().tryChangeCurrentFolder(file);
@@ -89,18 +90,20 @@ public class OpenInOtherPanelAction extends SelectedFileAction {
     public static final class Descriptor extends AbstractActionDescriptor {
     	public static final String ACTION_ID = "OpenInOtherPanel";
     	
-		public String getId() { return ACTION_ID; }
+		public String getId() {
+		    return ACTION_ID;
+		}
 
-		public ActionCategory getCategory() { return ActionCategory.NAVIGATION; }
+		public ActionCategory getCategory() {
+		    return ActionCategory.NAVIGATION;
+		}
 
-		public KeyStroke getDefaultAltKeyStroke() { return null; }
+		public KeyStroke getDefaultAltKeyStroke() {
+		    return null;
+		}
 
 		public KeyStroke getDefaultKeyStroke() {
-            if (OsFamily.getCurrent() != OsFamily.MAC_OS_X) {
-                return KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
-            } else {
-                return KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.META_DOWN_MASK);
-            }
+            return KeyStroke.getKeyStroke(KeyEvent.VK_O, CTRL_OR_META_DOWN_MASK);
         }
 
         public MuAction createAction(MainFrame mainFrame, Map<String,Object> properties) {

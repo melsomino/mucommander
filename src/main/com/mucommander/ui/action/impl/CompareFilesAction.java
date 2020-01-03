@@ -1,6 +1,6 @@
 /*
  * This file is part of trolCommander, http://www.trolsoft.ru/en/soft/trolcommander
- * Copyright (C) 2013-2016 Oleg Trifonov
+ * Copyright (C) 2013-2017 Oleg Trifonov
  *
  * muCommander is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class CompareFilesAction extends SelectedFilesAction {
 
-    CompareFilesAction(MainFrame mainFrame, Map<String, Object> properties) {
+    private CompareFilesAction(MainFrame mainFrame, Map<String, Object> properties) {
         super(mainFrame, properties);
         setSelectedFileFilter(new AndFileFilter(
             new FileOperationFilter(FileOperation.READ_FILE),
@@ -66,17 +66,21 @@ public class CompareFilesAction extends SelectedFilesAction {
     public void performAction(FileSet files) {
         String leftFile = mainFrame.getLeftPanel().getFileTable().getSelectedFile().getAbsolutePath().replace(" ", "\\ ");
         String rightFile = mainFrame.getRightPanel().getFileTable().getSelectedFile().getAbsolutePath().replace(" ", "\\ ");
+        compareTwoFiles(leftFile, rightFile);
+    }
+
+    public static void compareTwoFiles(String fiel1, String file2) {
         new Thread(() -> {
             try {
-                ExecutorUtils.execute("/usr/bin/opendiff " + leftFile + " " + rightFile);
+                ExecutorUtils.execute("/usr/bin/opendiff " + fiel1 + " " + file2);
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
     }
 
-    private static boolean supported() {
-        return OsFamily.getCurrent() == OsFamily.MAC_OS_X && new File("/usr/bin/opendiff").exists();
+    public static boolean supported() {
+        return OsFamily.MAC_OS_X.isCurrent() && new File("/usr/bin/opendiff").exists();
     }
 
     @Override
@@ -87,13 +91,21 @@ public class CompareFilesAction extends SelectedFilesAction {
     public static final class Descriptor extends AbstractActionDescriptor {
         public static final String ACTION_ID = "CompareFiles";
 
-        public String getId() { return ACTION_ID; }
+        public String getId() {
+            return ACTION_ID;
+        }
 
-        public ActionCategory getCategory() { return ActionCategory.FILES; }
+        public ActionCategory getCategory() {
+            return ActionCategory.FILES;
+        }
 
-        public KeyStroke getDefaultAltKeyStroke() { return null; }
+        public KeyStroke getDefaultAltKeyStroke() {
+            return null;
+        }
 
-        public KeyStroke getDefaultKeyStroke() { return null; }
+        public KeyStroke getDefaultKeyStroke() {
+            return null;
+        }
 
         public MuAction createAction(MainFrame mainFrame, Map<String, Object> properties) {
             return new CompareFilesAction(mainFrame, properties);

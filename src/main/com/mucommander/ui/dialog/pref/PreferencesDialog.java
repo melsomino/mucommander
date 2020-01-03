@@ -19,7 +19,6 @@
 
 package com.mucommander.ui.dialog.pref;
 
-import com.mucommander.text.Translator;
 import com.mucommander.ui.dialog.FocusDialog;
 import com.mucommander.ui.dialog.pref.component.PrefComponent;
 import com.mucommander.ui.icon.IconManager;
@@ -94,10 +93,10 @@ public abstract class PreferencesDialog extends FocusDialog implements ActionLis
 
         // Buttons panel.
         XBoxPanel buttonsPanel = new XBoxPanel();
-        buttonsPanel.add(btnApply = new JButton(Translator.get("apply")));
+        buttonsPanel.add(btnApply = new JButton(i18n("apply")));
         buttonsPanel.addSpace(20);
-        buttonsPanel.add(btnOk = new JButton(Translator.get("ok")));
-        buttonsPanel.add(btnCancel = new JButton(Translator.get("cancel")));
+        buttonsPanel.add(btnOk = new JButton(i18n("ok")));
+        buttonsPanel.add(btnCancel = new JButton(i18n("cancel")));
         
         // Disable "commit buttons".
         btnOk.setEnabled(false);
@@ -181,7 +180,7 @@ public abstract class PreferencesDialog extends FocusDialog implements ActionLis
      * <p>
      * This gives preference panels a chance to display warning or errors before changes are
      * commited.
-     * </p>
+     *
      * @return <code>true</code> if all preference panels are ok with commiting the changes, <code>false</code> otherwise.
      */
     public boolean checkCommit() {
@@ -235,7 +234,7 @@ public abstract class PreferencesDialog extends FocusDialog implements ActionLis
     }
     
     /**
-     * This function set the "commit buttons", i.e apply & ok buttons, enabled\disabled
+     * This function set the "commit buttons", i.e apply &amp; ok buttons, enabled\disabled
      * according to the given parameter.
      * 
      * @param enable - parameter that indicated if the commit button will turn to be

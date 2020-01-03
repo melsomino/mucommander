@@ -61,10 +61,7 @@ import ru.trolsoft.macosx.RetinaImageIcon;
  */
 public class ToolBar extends JToolBar implements ConfigurationListener, MouseListener, ToolBarAttributesListener {
 
-    private MainFrame mainFrame;
-
-    /** Holds a reference to the RolloverButtonAdapter instance so that it doesn't get garbage-collected */
-    private RolloverButtonAdapter rolloverButtonAdapter;
+    private final MainFrame mainFrame;
 
     /** Dimension of button separators */
     private final static Dimension SEPARATOR_DIMENSION = new Dimension(10, 16);
@@ -96,10 +93,6 @@ public class ToolBar extends JToolBar implements ConfigurationListener, MouseLis
 
         // Listen to configuration changes to reload toolbar buttons when icon size has changed
         MuConfigurations.addPreferencesListener(this);
-
-        // Rollover-enable the button and hold a reference to the RolloverButtonAdapter instance so that it doesn't
-        // get garbage-collected
-        rolloverButtonAdapter = new RolloverButtonAdapter();
 
         // create buttons for each actions and add them to the toolbar
         addButtons(ToolBarAttributes.getActions());
@@ -178,17 +171,12 @@ public class ToolBar extends JToolBar implements ConfigurationListener, MouseLis
 
         if (USE_MAC_OS_X_CLIENT_PROPERTIES) {
             if (button.getIcon() == null || button.getIcon().getIconHeight() <= 16) {
-            button.putClientProperty("JButton.buttonType", "segmentedTextured");
+                button.putClientProperty("JButton.buttonType", "segmentedTextured");
             }
             button.setRolloverEnabled(true);
+        } else {
+            RolloverButtonAdapter.decorateButton(button);
         }
-        // On other platforms, use a custom rollover effect
-        else {
-            // Init rollover
-            RolloverButtonAdapter.setButtonDecoration(button);
-            button.addMouseListener(rolloverButtonAdapter);
-        }
-
         add(button);
     }
 
@@ -293,7 +281,7 @@ public class ToolBar extends JToolBar implements ConfigurationListener, MouseLis
      */
     private class HistoryPopupButton extends PopupButton {
 
-        private MuAction action;
+        private final MuAction action;
 
         private HistoryPopupButton(MuAction action) {
             super(action);

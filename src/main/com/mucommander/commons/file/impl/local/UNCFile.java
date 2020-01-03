@@ -336,7 +336,7 @@ public class UNCFile extends ProtocolFile {
     }
 	
     @Override
-    public void renameTo(AbstractFile destFile) throws IOException, UnsupportedFileOperationException {
+    public void renameTo(AbstractFile destFile) throws IOException {
         // Throw an exception if the file cannot be renamed to the specified destination.
         // Fail in some situations where java.io.File#renameTo() doesn't.
         // Note that java.io.File#renameTo()'s implementation is system-dependant, so it's always a good idea to
@@ -597,7 +597,7 @@ public class UNCFile extends ProtocolFile {
      *
      * <p>Using this method to retrieve both free space and volume space is more efficient than calling
      * {@link #getFreeSpace()} and {@link #getTotalSpace()} separately -- the underlying method retrieving both
-     * attributes at the same time.</p>
+     * attributes at the same time.
      *
      * @return a {totalSpace, freeSpace} long array, both values can be null if the information could not be retrieved
      * @throws IOException if an I/O error occurred
@@ -660,7 +660,7 @@ public class UNCFile extends ProtocolFile {
                         String lastLine = null;
                         // Retrieves last line of dir
                         while((line=br.readLine())!=null) {
-                            if(!line.trim().equals(""))
+                            if(!line.trim().isEmpty())
                                 lastLine = line;
                         }
 
@@ -679,7 +679,7 @@ public class UNCFile extends ProtocolFile {
                                 char c = token.charAt(0);
                                 if(c>='0' && c<='9')
                                     freeSpace += token;
-                                else if(!freeSpace.equals(""))
+                                else if(!freeSpace.isEmpty())
                                     break;
                             }
 

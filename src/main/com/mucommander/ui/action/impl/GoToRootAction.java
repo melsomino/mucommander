@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public class GoToRootAction extends ActiveTabAction {
 
-    GoToRootAction(MainFrame mainFrame, Map<String, Object> properties) {
+    private GoToRootAction(MainFrame mainFrame, Map<String, Object> properties) {
         super(mainFrame, properties);
     }
 
@@ -49,8 +49,9 @@ public class GoToRootAction extends ActiveTabAction {
      */
     @Override
     protected void toggleEnabledState() {
+        AbstractFile currentFolder = mainFrame.getActivePanel().getCurrentFolder();
         setEnabled(!mainFrame.getActivePanel().getTabs().getCurrentTab().isLocked() &&
-        		    mainFrame.getActivePanel().getCurrentFolder().getParent()!=null);
+        		    currentFolder != null && currentFolder.getParent() != null);
     }
     
     @Override
@@ -71,13 +72,21 @@ public class GoToRootAction extends ActiveTabAction {
     public static final class Descriptor extends AbstractActionDescriptor {
     	public static final String ACTION_ID = "GoToRoot";
     	
-		public String getId() { return ACTION_ID; }
+		public String getId() {
+		    return ACTION_ID;
+		}
 
-		public ActionCategory getCategory() { return ActionCategory.NAVIGATION; }
+		public ActionCategory getCategory() {
+		    return ActionCategory.NAVIGATION;
+		}
 
-		public KeyStroke getDefaultAltKeyStroke() { return KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SLASH, KeyEvent.CTRL_DOWN_MASK); }
+		public KeyStroke getDefaultAltKeyStroke() {
+		    return KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SLASH, KeyEvent.CTRL_DOWN_MASK);
+		}
 
-		public KeyStroke getDefaultKeyStroke() { return KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, KeyEvent.SHIFT_DOWN_MASK); }
+		public KeyStroke getDefaultKeyStroke() {
+		    return KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, KeyEvent.SHIFT_DOWN_MASK);
+		}
 
         public MuAction createAction(MainFrame mainFrame, Map<String,Object> properties) {
             return new GoToRootAction(mainFrame, properties);

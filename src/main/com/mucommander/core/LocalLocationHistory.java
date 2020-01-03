@@ -35,7 +35,7 @@ import com.mucommander.ui.main.FolderPanel;
  * This class maintains a history of visited locations for a given tab, and provides methods to go back and go forward
  * in the history.
  *
- * <p>There is a limit to the number of locations the history can contain, defined by {@link #HISTORY_CAPACITY}.</p>
+ * <p>There is a limit to the number of locations the history can contain, defined by {@link #HISTORY_CAPACITY}.
  *
  * @author Maxence Bernard, Arik Hadas
  */
@@ -100,8 +100,8 @@ public class LocalLocationHistory {
 		historyIndex++;
 
 		// Delete 'forward' history items if any
-		for (int i=historyIndex; i<historySize; i++) {
-			history.remove(historyIndex);
+		if (historySize > historyIndex) {
+			history.subList(historyIndex, historySize).clear();
 		}
 
 		// If capacity is reached, remove first folder

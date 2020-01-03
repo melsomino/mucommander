@@ -18,7 +18,7 @@
 package com.mucommander.adb;
 
 
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 import com.mucommander.ui.action.MuAction;
 import com.mucommander.ui.helper.MnemonicHelper;
 import com.mucommander.ui.icon.IconManager;
@@ -33,7 +33,7 @@ import java.util.List;
  * An abstract JMenu that contains an item for each Android ADB devices available
  *
  * <p>Note: the items list is refreshed each time the menu is selected. In other words, a new instance of AdbMenu
- * does not have to be created in order to see new devices.</p>
+ * does not have to be created in order to see new devices.
  *
  * Created on 28/12/15.
  * @author Oleg Trifonov

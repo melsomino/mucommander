@@ -18,7 +18,7 @@
 
 package com.mucommander.ui.theme;
 
-import com.mucommander.text.Translator;
+import com.mucommander.utils.text.Translator;
 
 import java.awt.*;
 import java.util.WeakHashMap;
@@ -89,7 +89,7 @@ public class Theme extends ThemeData {
 
     private void init(ThemeListener listener, Type type, String name) {
         // This might seem like a roundabout way of doing things, but it's actually necessary.
-        // If we didn't explicitely call a defaultValuesListener method, proGuard would 'optimise'
+        // If we didn't explicitly call a defaultValuesListener method, proGuard would 'optimise'
         // the instance out with catastrophic results (the listener would become a weak reference,
         // be removed by the garbage collector, and all our carefully crafted event system would
         // crumble).
@@ -143,10 +143,8 @@ public class Theme extends ThemeData {
 	 * Checks whether this theme is modifiable.
 	 * <p>
 	 * A theme is modifiable if and only if it's not a predefined theme.
-	 * </p>
 	 *
 	 * @return <code>true</code> if the theme is modifiable, <code>false</code> otherwise.
-	 *
 	 */
 	public boolean canModify() {
 		return type != Type.PREDEFINED;
@@ -179,7 +177,6 @@ public class Theme extends ThemeData {
 	 * <p>
 	 * Note that this method will only work if the theme is not a predifined one. Any other theme type will throw an
 	 * exception.
-	 * </p>
 	 * 
 	 * @see ThemeManager#setCurrentFont(int,Font)
 	 * @param id
@@ -209,7 +206,6 @@ public class Theme extends ThemeData {
 	 * <p>
 	 * Note that this method will not work if the theme is a predefined one. Any other theme type will throw an
 	 * exception.
-	 * </p>
 	 *
 	 * @see ThemeManager#setCurrentColor(int,Color)
 	 * @param id
@@ -239,7 +235,7 @@ public class Theme extends ThemeData {
      * <p>
      * If <code>type</code> is set to {@link Type#USER}, this method will also set the
      * theme's name to the proper value taken from the dictionary.
-     * </p>
+     *
      * @param type theme's type.
      */
     void setType(Type type) {
@@ -264,8 +260,9 @@ public class Theme extends ThemeData {
     // - Misc. ---------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------
     static void checkType(Type type) {
-        if (type != Type.USER && type != Type.PREDEFINED && type != Type.CUSTOM)
+        if (type != Type.USER && type != Type.PREDEFINED && type != Type.CUSTOM) {
             throw new IllegalArgumentException("Illegal theme type: " + type);
+        }
     }
 
     /**
